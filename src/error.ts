@@ -14,28 +14,6 @@ export class HttpResponse extends Error {
   }
 }
 
-/**
- * reports that item was not found
- */
-export class NotFound extends HttpResponse {
-  public item: string
-
-  constructor(item: string) {
-    super({ code: 404, message: `${item} not found` })
-    this.item = item
-    this.name = 'not found'
-  }
-}
-
-/**
- * indicates that request was invalid e.g. missing parameter
- */
-export class BadRequest extends HttpResponse {
-  constructor(message = 'bad request') {
-    super({ code: 400, message })
-  }
-}
-
 export const errorHandler = function errorHandler(
   err: Error & { code: number; data?: object },
   req: ExRequest,
