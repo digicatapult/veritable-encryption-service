@@ -1,0 +1,83 @@
+{
+  "name": "@digicatapult/veritable-encryption-service",
+  "version": "0.0.1",
+  "description": "An OpenAPI service for encryption in Veritable",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "check": "npm run tsoa:build && tsc --noEmit",
+    "depcheck": "depcheck",
+    "clean": "rimraf -rf ./build",
+    "build": "npm run clean && npm run tsoa:build && swc ./src -d ./build --strip-leading-paths --copy-files",
+    "tsoa:build": "tsoa spec-and-routes",
+    "tsoa:watch": "nodemon --watch src --ext ts --exec \"tsoa spec-and-routes\"",
+    "dev": "concurrently \"npm run tsoa:watch\" \"nodemon --watch src --watch build/routes/swagger.json --ext ts,json --exec 'SWCRC=true NODE_ENV=dev node --import @swc-node/register/esm-register --enable-source-maps src/index.ts | pino-pretty -c -S'\"",
+    "start": "node build/index.js",
+    "dev:telemetry": "concurrently -k \"NODE_ENV=dev NODE_OPTIONS='--require @opentelemetry/auto-instrumentations-node/register' GRPC_INSECURE=true OTEL_SERVICE_NAME='veritable-encryption-service ' OTEL_EXPORTER_OTLP_TRACES_PROTOCOL='grpc' OTEL_EXPORTER_OTLP_TRACES_ENDPOINT='http://localhost:4317' OTEL_TRACES_EXPORTER='otlp' OTEL_PROPAGATORS='tracecontext,baggage' nodemon | pino-pretty\" \"nodemon -x tsoa spec-and-routes --ignore src/routes.ts --ignore src/swagger.json\"",
+    "test:integration": "NODE_OPTIONS=--no-experimental-strip-types NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./test/integration/*.test.ts",
+    "test:unit": "NODE_OPTIONS=--no-experimental-strip-types NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./src/**/*.test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digicatapult/veritable-encryption-service.git"
+  },
+  "engines": {
+    "node": "^22.x.x",
+    "npm": "^11.x.x"
+  },
+  "keywords": [
+    "OpenAPI"
+  ],
+  "author": "Digital Catapult",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/digicatapult/veritable-encryption-service/issues"
+  },
+  "homepage": "https://github.com/digicatapult/veritable-encryption-service#readme",
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.36.0",
+    "@swc-node/register": "^1.11.1",
+    "@swc/cli": "^0.7.8",
+    "@swc/core": "^1.13.5",
+    "@types/chai": "^5.2.2",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/mocha": "^10.0.10",
+    "@types/supertest": "^6.0.3",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "chai": "^6.2.0",
+    "concurrently": "^9.2.1",
+    "depcheck": "^1.4.7",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.4.0",
+    "mocha": "^11.7.2",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "rimraf": "^6.0.1",
+    "supertest": "^7.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@opentelemetry/auto-instrumentations-node": "^0.64.1",
+    "@tsoa/runtime": "^6.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "envalid": "^8.1.0",
+    "express": "^5.1.0",
+    "express-prom-bundle": "^8.0.0",
+    "pino": "^9.11.0",
+    "pino-http": "^10.5.0",
+    "pino-pretty": "13.1.1",
+    "reflect-metadata": "^0.2.2",
+    "swagger-ui-express": "^5.0.1",
+    "tsoa": "^6.6.0",
+    "tsyringe": "^4.10.0"
+  }
+}

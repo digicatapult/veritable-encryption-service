@@ -1,0 +1,10 @@
+ignores: [
+  '@swc-node/register',
+  '@swc/cli',
+  '@swc/core',
+  'concurrently',
+  'nodemon',
+  '@opentelemetry/auto-instrumentations-node',
+  'ts-node',
+  'rimraf',
+]
