@@ -1,5 +1,6 @@
 import dotenv from 'dotenv'
 import * as envalid from 'envalid'
+import { singleton } from 'tsyringe'
 
 if (process.env.NODE_ENV === 'test') {
   dotenv.config({ path: 'test/test.env' })
@@ -12,9 +13,18 @@ export const envSchema = {
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
 }
 
-const env = envalid.cleanEnv(process.env, envSchema)
+export type ENV_CONFIG = typeof envSchema
+export type ENV_KEYS = keyof ENV_CONFIG
 
-export default env
+@singleton()
+export class Env {
+  private vals: envalid.CleanedEnv<typeof envSchema>
 
-export const EnvToken = Symbol('Env')
-export type Env = typeof env
+  constructor() {
+    this.vals = envalid.cleanEnv(process.env, envSchema)
+  }
+
+  get<K extends ENV_KEYS>(key: K) {
+    return this.vals[key]
+  }
+}

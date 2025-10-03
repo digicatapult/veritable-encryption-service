@@ -1,7 +1,6 @@
 import { IocContainer } from '@tsoa/runtime'
 import { Logger } from 'pino'
 import { container } from 'tsyringe'
-import env, { Env, EnvToken } from './env.js'
 import { logger, LoggerToken } from './logger.js'
 
 export const iocContainer: IocContainer = {
@@ -12,6 +11,5 @@ export const iocContainer: IocContainer = {
 
 export function resetContainer() {
   container.clearInstances()
-  container.registerInstance<Env>(EnvToken, env)
   container.register<Logger>(LoggerToken, { useValue: logger })
 }
