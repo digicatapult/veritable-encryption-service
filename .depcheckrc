@@ -4,7 +4,6 @@ ignores: [
   '@swc/core',
   'concurrently',
   'nodemon',
-  '@opentelemetry/auto-instrumentations-node',
   'ts-node',
   'rimraf',
   'prettier-plugin-organize-imports',

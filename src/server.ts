@@ -1,6 +1,5 @@
 import cors from 'cors'
 import express, { Express, type Request as ExRequest, type Response as ExResponse } from 'express'
-import promBundle from 'express-prom-bundle'
 import { serve, setup, SwaggerUiOptions } from 'swagger-ui-express'
 
 import { Logger } from 'pino'
@@ -9,15 +8,6 @@ import { errorHandler } from './error.js'
 import { createRequestLogger, LoggerToken } from './logger.js'
 import { RegisterRoutes } from './routes/routes.js'
 import swagger from './routes/swagger.json' with { type: 'json' }
-
-const promClient = promBundle({
-  includePath: true,
-  promClient: {
-    collectDefaultMetrics: {
-      prefix: 'veritable_encryption_service_',
-    },
-  },
-})
 
 export default async (): Promise<Express> => {
   const app: Express = express()
@@ -32,7 +22,6 @@ export default async (): Promise<Express> => {
   app.use(express.urlencoded({ extended: true }))
   app.use(express.json())
   app.use(cors())
-  app.use(promClient)
 
   app.get('/', (_req: ExRequest, res: ExResponse) => {
     res.redirect('/swagger')
