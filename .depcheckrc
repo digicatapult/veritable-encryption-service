@@ -1,0 +1,10 @@
+ignores: [
+  '@swc-node/register',
+  '@swc/cli',
+  '@swc/core',
+  'concurrently',
+  'nodemon',
+  'ts-node',
+  'rimraf',
+  'prettier-plugin-organize-imports',
+]
