@@ -1,0 +1,188 @@
+# docker compose -f docker-compose-testnet.yml up --build -d
+
+##################################################################################
+## Docker-Compose for a 2-agent testnet ############
+##
+## Agents: Alice, Bob
+## Ports for testing purposes (HTTP):
+##    Alice   = 3000 [ 5002 (HTTP) & 5003 (WS) internal ]
+##    Bob     = 3001 [ 5102 (HTTP) & 5103 (WS) internal ]
+##    IPFS    = 8080 [ 5001 used for internal traffic   ]
+## Network: testnet
+##
+##################################################################################
+
+services:
+  ##################################################################################
+  ## Alice #########################################################################
+  ##################################################################################
+
+  veritable-cloudagent-alice:
+    image: digicatapult/veritable-cloudagent:v0.15.4
+    container_name: veritable-cloudagent-alice
+    restart: always
+    depends_on:
+      ipfs:
+        condition: service_healthy
+      alice-postgres:
+        condition: service_healthy
+    environment:
+      - LOG_LEVEL=debug
+      - PERSONA_TITLE=OEM
+      - PERSONA_COLOR=#eddedf
+      - ENDPOINT=http://veritable-cloudagent-alice:5002, ws://veritable-cloudagent-alice:5003
+      - IPFS_ORIGIN=http://ipfs:5001
+      - POSTGRES_HOST=alice-postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=postgres
+      - AUTO_ACCEPT_CREDENTIALS=always
+      - AUTO_ACCEPT_PROOFS=always
+      - DID_WEB_ENABLED=true
+      - DID_WEB_USE_DEV_CERT=true
+      - DID_WEB_PORT=8443
+      - DID_WEB_DEV_CERT_PATH=/alice.pem
+      - DID_WEB_DEV_KEY_PATH=/alice-key.pem
+      - DID_WEB_DB_NAME=did-web-server
+      - DID_WEB_DOMAIN=veritable-cloudagent-alice%3A8443
+      - DID_WEB_SERVICE_ENDPOINT=http://veritable-cloudagent-alice:5002
+      - NODE_EXTRA_CA_CERTS=/rootCA.pem
+    ports:
+      - "3100:3000"
+      - "8443:8443"
+    command: >
+      sh -c "
+        npm i -g pino-pretty
+        node ./node_modules/.bin/knex migrate:latest
+        npm start | pino-pretty -c -S"
+    networks: ["alice", "testnet"]
+    volumes:
+      - ./veritable-cloudagent-alice+1.pem:/alice.pem
+      - ./veritable-cloudagent-alice+1-key.pem:/alice-key.pem
+      - ${NODE_EXTRA_CA_CERTS}:/rootCA.pem
+
+  ##################################################################################
+  ## Bob ###########################################################################
+  ##################################################################################
+
+  veritable-cloudagent-bob:
+    container_name: veritable-cloudagent-bob
+    image: digicatapult/veritable-cloudagent:v0.15.4
+    restart: always
+    depends_on:
+      ipfs:
+        condition: service_healthy
+      bob-postgres:
+        condition: service_healthy
+    environment:
+      - LOG_LEVEL=debug
+      - PERSONA_TITLE=Maker
+      - PERSONA_COLOR=#dfedde
+      - ENDPOINT=http://veritable-cloudagent-bob:5002, ws://veritable-cloudagent-bob:5003
+      - IPFS_ORIGIN=http://ipfs:5001
+      - POSTGRES_HOST=bob-postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=postgres
+      - AUTO_ACCEPT_CREDENTIALS=always
+      - AUTO_ACCEPT_PROOFS=always
+      - DID_WEB_ENABLED=true
+      - DID_WEB_USE_DEV_CERT=true
+      - DID_WEB_PORT=8443
+      - DID_WEB_DEV_CERT_PATH=/bob.pem
+      - DID_WEB_DEV_KEY_PATH=/bob-key.pem
+      - DID_WEB_DB_NAME=did-web-server
+      - DID_WEB_DOMAIN=veritable-cloudagent-bob%3A8443
+      - DID_WEB_SERVICE_ENDPOINT=http://veritable-cloudagent-bob:5002
+      - NODE_EXTRA_CA_CERTS=/rootCA.pem
+    ports:
+      - "3101:3000"
+      - "8444:8443"
+    command: >
+      sh -c "
+        npm i -g pino-pretty
+        node ./node_modules/.bin/knex migrate:latest
+        npm start | pino-pretty -c -S"
+    networks: ["bob", "testnet"]
+    volumes:
+      - ./veritable-cloudagent-bob+1.pem:/bob.pem
+      - ./veritable-cloudagent-bob+1-key.pem:/bob-key.pem
+      - ${NODE_EXTRA_CA_CERTS}:/rootCA.pem
+
+  ##################################################################################
+  ## IPFS ##########################################################################
+  ##################################################################################
+
+  ipfs:
+    container_name: ipfs
+    image: ipfs/kubo:release
+    ports:
+      - "8080:8080" # ipfs HTTP gateway
+    volumes:
+      - ipfs:/data/ipfs
+    networks:
+      - testnet
+
+  ##################################################################################
+  ## Alice's Postgres ##############################################################
+  ##################################################################################
+  alice-postgres:
+    container_name: alice-postgres
+    image: postgres:18.0-alpine
+    restart: on-failure
+    ports:
+      - 5432:5432
+    volumes:
+      - alice-veritable-cloudagent-storage:/var/lib/postgresql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=did-web-server
+    healthcheck:
+      test: ["CMD-SHELL", "PGUSER=postgres", pg_isready", "-d", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 0s
+    networks:
+      - testnet
+
+  ##################################################################################
+  ## Bob's Postgres ################################################################
+  ##################################################################################
+  bob-postgres:
+    container_name: bob-postgres
+    image: postgres:18.0-alpine
+    restart: on-failure
+    ports:
+      - 5433:5432
+    volumes:
+      - bob-veritable-cloudagent-storage:/var/lib/postgresql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=did-web-server
+    healthcheck:
+      test: ["CMD-SHELL", "PGUSER=postgres", pg_isready", "-d", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 0s
+    networks:
+      - testnet
+
+volumes:
+  ipfs:
+  alice-veritable-cloudagent-storage:
+  bob-veritable-cloudagent-storage:
+
+networks:
+  alice:
+    ipam:
+      driver: default
+  bob:
+    ipam:
+      driver: default
+  testnet:
+    name: testnet
+    driver: bridge

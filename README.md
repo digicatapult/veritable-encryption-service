@@ -24,6 +24,16 @@ npm run dev
 
 View OpenAPI documentation for all routes with Swagger at http://localhost:3000/swagger/
 
+- Install [mkcert](https://github.com/FiloSottile/mkcert#installation).
+- Run the following commands at root:
+
+```
+mkcert -install
+mkcert veritable-cloudagent-alice localhost
+mkcert veritable-cloudagent-bob localhost
+export NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem"
+```
+
 ## Tests
 
 Unit tests are executed by calling:
