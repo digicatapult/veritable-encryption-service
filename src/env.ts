@@ -1,5 +1,5 @@
-import * as envalid from 'envalid'
 import dotenv from 'dotenv'
+import * as envalid from 'envalid'
 
 if (process.env.NODE_ENV === 'test') {
   dotenv.config({ path: 'test/test.env' })

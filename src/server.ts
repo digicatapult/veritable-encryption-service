@@ -1,14 +1,14 @@
-import express, { Express, type Request as ExRequest, type Response as ExResponse } from 'express'
-import { setup, serve, SwaggerUiOptions } from 'swagger-ui-express'
 import cors from 'cors'
+import express, { Express, type Request as ExRequest, type Response as ExResponse } from 'express'
 import promBundle from 'express-prom-bundle'
+import { serve, setup, SwaggerUiOptions } from 'swagger-ui-express'
 
-import { errorHandler } from './error.js'
-import { RegisterRoutes } from './routes/routes.js'
-import swagger from './routes/swagger.json' with { type: 'json' }
-import { createRequestLogger, LoggerToken } from './logger.js'
 import { Logger } from 'pino'
 import { container } from 'tsyringe'
+import { errorHandler } from './error.js'
+import { createRequestLogger, LoggerToken } from './logger.js'
+import { RegisterRoutes } from './routes/routes.js'
+import swagger from './routes/swagger.json' with { type: 'json' }
 
 const promClient = promBundle({
   includePath: true,

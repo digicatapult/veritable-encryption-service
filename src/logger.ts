@@ -1,8 +1,8 @@
-import { pino, Logger } from 'pino'
+import { randomUUID } from 'crypto'
+import { Request as ExRequest, Response as ExResponse } from 'express'
+import { Logger, pino } from 'pino'
 import { pinoHttp } from 'pino-http'
 import { container } from 'tsyringe'
-import { randomUUID } from 'crypto'
-import { Response as ExResponse, Request as ExRequest } from 'express'
 
 import env from './env.js'
 

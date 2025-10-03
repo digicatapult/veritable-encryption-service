@@ -1,12 +1,12 @@
-import 'reflect-metadata'
 import { Express } from 'express'
+import 'reflect-metadata'
 import { container } from 'tsyringe'
 
-import Server from './server.js'
+import { Logger } from 'pino'
 import { type Env, EnvToken } from './env.js'
 import { resetContainer } from './ioc.js'
-import { Logger } from 'pino'
 import { LoggerToken } from './logger.js'
+import Server from './server.js'
 ;(async () => {
   resetContainer()
   const logger = container.resolve<Logger>(LoggerToken)

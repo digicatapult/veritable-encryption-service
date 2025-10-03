@@ -7,4 +7,5 @@ ignores: [
   '@opentelemetry/auto-instrumentations-node',
   'ts-node',
   'rimraf',
+  'prettier-plugin-organize-imports',
 ]

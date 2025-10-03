@@ -1,8 +1,8 @@
-import { describe, it } from 'mocha'
 import { expect } from 'chai'
 import { Express } from 'express'
-import version from '../../src/version.js'
+import { describe, it } from 'mocha'
 import request from 'supertest'
+import version from '../../src/version.js'
 
 import createHttpServer from '../../src/server.js'
 

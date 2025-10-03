@@ -16,15 +16,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": [
-    "src/**/*.ts",
-    "src/global.d.ts",
-    "src/swagger.json"
-  ],
-  "exclude": [
-    "**/*.test.ts",
-    "test",
-    "**/__test__",
-    "**/__tests__"
-  ]
+  "include": ["src/**/*.ts", "src/global.d.ts", "src/swagger.json"],
+  "exclude": ["**/*.test.ts", "test", "**/__test__", "**/__tests__"]
 }

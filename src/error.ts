@@ -1,4 +1,4 @@
-import { Response as ExResponse, Request as ExRequest, NextFunction } from 'express'
+import { Request as ExRequest, Response as ExResponse, NextFunction } from 'express'
 import { ValidateError } from 'tsoa'
 
 import { logger } from './logger.js'
