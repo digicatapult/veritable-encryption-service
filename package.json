@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -62,7 +62,7 @@
     "rimraf": "^6.0.1",
     "supertest": "^7.1.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "@tsoa/runtime": "^6.6.0",
