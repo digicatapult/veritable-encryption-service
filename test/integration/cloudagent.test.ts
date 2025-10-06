@@ -10,10 +10,10 @@ import {
 } from '../helpers/twoPartyContext.js'
 
 describe('cloudagent', async () => {
-  // const cloudagent = container.resolve(Cloudagent)
   const context: TwoPartyContext = {} as TwoPartyContext
 
-  before(async () => {
+  before(async function () {
+    this.timeout(10000)
     await setupTwoPartyContext(context)
     await withEstablishedConnection(context)
     await withSchema(context)
