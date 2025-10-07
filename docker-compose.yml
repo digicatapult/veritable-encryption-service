@@ -139,7 +139,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=did-web-server
     healthcheck:
-      test: ["CMD-SHELL", "PGUSER=postgres", pg_isready", "-d", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -163,7 +163,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=did-web-server
     healthcheck:
-      test: ["CMD-SHELL", "PGUSER=postgres", pg_isready", "-d", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 5s
       timeout: 5s
       retries: 20
