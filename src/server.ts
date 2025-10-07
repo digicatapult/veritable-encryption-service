@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express, { Express, type Request as ExRequest, type Response as ExResponse } from 'express'
+import multer from 'multer'
 import { serve, setup, SwaggerUiOptions } from 'swagger-ui-express'
 
 import { Logger } from 'pino'
@@ -15,6 +16,14 @@ export default async (): Promise<Express> => {
   const logger = container.resolve<Logger>(LoggerToken)
   app.use(createRequestLogger(logger))
 
+  // Configure multer for file uploads (memory storage)
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+  })
+
   const options: SwaggerUiOptions = {
     swaggerOptions: { url: '/api-docs' },
   }
@@ -22,6 +31,9 @@ export default async (): Promise<Express> => {
   app.use(express.urlencoded({ extended: true }))
   app.use(express.json())
   app.use(cors())
+
+  // Add multer middleware for file uploads
+  app.use('/files/upload', upload.single('file'))
 
   app.get('/', (_req: ExRequest, res: ExResponse) => {
     res.redirect('/swagger')
