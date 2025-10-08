@@ -1,8 +1,9 @@
+import { Storage, StorageAdapterConfig, StorageType } from '@tweedegolf/storage-abstraction'
 import { type Logger } from 'pino'
 import { inject, injectable } from 'tsyringe'
+import { AzureEnv, EnvToken, isAzureEnv, isS3Env, S3Env } from '../env.js'
 import { LoggerToken } from '../logger.js'
-import { StorageType, Storage, StorageAdapterConfig } from '@tweedegolf/storage-abstraction'
-import { type Env, EnvToken } from '../env.js'
+import { sha256HashFromBuffer } from '../utils/hashing.js'
 
 export const StorageToken = Symbol('StorageToken')
 
@@ -12,20 +13,33 @@ export default class StorageClass {
   private config: StorageAdapterConfig
 
   constructor(
-    @inject(EnvToken) private env: Env,
+    @inject(EnvToken) private env: S3Env | AzureEnv,
     @inject(LoggerToken) private logger: Logger
   ) {
-    this.config = {
-      type: StorageType.MINIO,
-      endpoint: this.env.get('MINIO_HOST'),
-      port: this.env.get('MINIO_PORT'),
-      accessKey: this.env.get('MINIO_ACCESS_KEY'),
-      secretKey: this.env.get('MINIO_SECRET_KEY'),
-      useSSL: this.env.get('MINIO_USE_SSL'),
+    if (!isS3Env(env) && !isAzureEnv(env)) {
+      throw new Error('Invalid storage mode')
     }
-
+    if (isS3Env(env)) {
+      this.config = {
+        type: StorageType.S3, // local stack and minio config
+        accessKeyId: env.STORAGE_BACKEND_ACCESS_KEY_ID,
+        secretAccessKey: env.STORAGE_BACKEND_SECRET_ACCESS_KEY,
+        endpoint: `${env.STORAGE_BACKEND_PROTOCOL}://${env.STORAGE_BACKEND_HOST}:${env.STORAGE_BACKEND_PORT}`,
+        region: env.STORAGE_BACKEND_S3_REGION,
+        port: env.STORAGE_BACKEND_PORT,
+        forcePathStyle: true,
+      }
+    } else {
+      this.config = {
+        type: StorageType.AZURE, // azure config
+        connectionString: `DefaultEndpointsProtocol=${env.STORAGE_BACKEND_PROTOCOL};AccountName=${env.STORAGE_BACKEND_ACCOUNT_NAME};AccountKey=${env.STORAGE_BACKEND_ACCOUNT_SECRET};BlobEndpoint=${env.STORAGE_BACKEND_PROTOCOL}://${env.STORAGE_BACKEND_HOST}:${env.STORAGE_BACKEND_PORT}/${env.STORAGE_BACKEND_ACCOUNT_NAME}`,
+      }
+    }
+    if (this.config === undefined) {
+      throw new Error('Storage config not found')
+    }
     this.storage = new Storage(this.config)
-    this.logger = this.logger.child({ module: 'Storage Class' })
+    this.logger.child({ module: 'Storage Class' })
     this.logger.info('Storage config: %j', this.config)
   }
 
@@ -37,12 +51,15 @@ export default class StorageClass {
       throw new Error('Failed to list buckets')
     }
 
-    const bucketExists = buckets.value?.find((bucket) => bucket === this.env.get('MINIO_BUCKET'))
+    const bucketName = this.env.STORAGE_BACKEND_BUCKET_NAME
+    const bucketExists = buckets.value?.find((bucket) => bucket === bucketName)
     if (bucketExists) {
       return
     }
 
-    const createdBucket = await this.storage.createBucket(this.env.get('MINIO_BUCKET'))
+    const bucketOptions = { public: true }
+
+    const createdBucket = await this.storage.createBucket(bucketName, bucketOptions)
     if (createdBucket.error !== null) {
       this.logger.error('Failed to create bucket: %s', createdBucket.error)
       throw new Error('Failed to create bucket')
@@ -55,33 +72,21 @@ export default class StorageClass {
   }> {
     this.logger.debug('Uploading file %s', filename)
     await this.createBucketIfDoesNotExist()
-
-    // Generate unique key with timestamp prefix
-    const key = `${Date.now()}-${filename}`
+    const integrityHash = sha256HashFromBuffer(buffer)
 
     const upload = await this.storage.addFileFromBuffer({
       buffer: buffer,
-      targetPath: key,
-      bucketName: this.env.get('MINIO_BUCKET'),
+      targetPath: integrityHash,
+      bucketName: this.env.STORAGE_BACKEND_BUCKET_NAME,
     })
     if (upload.error !== null) {
       this.logger.error('Failed to upload file: %s', upload.error)
       throw new Error('Failed to upload file')
     }
 
-    // Generate public URL for direct Minio access
-    const url = this.getPublicUrl(key)
+    const url = `${this.env.STORAGE_BACKEND_HOST}:${this.env.STORAGE_BACKEND_PORT}/${this.env.STORAGE_BACKEND_BUCKET_NAME}/${integrityHash}`
 
-    return { key, url }
-  }
-
-  getPublicUrl(key: string): string {
-    const protocol = this.env.get('MINIO_USE_SSL') ? 'https' : 'http'
-    const host = this.env.get('MINIO_HOST')
-    const port = this.env.get('MINIO_PORT')
-    const bucket = this.env.get('MINIO_BUCKET')
-
-    return `${protocol}://${host}:${port}/${bucket}/${key}`
+    return { key: integrityHash, url: url }
   }
 
   getStatus = async () => {

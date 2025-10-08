@@ -1,7 +1,7 @@
 import express from 'express'
 import { Controller, Post, Request, Route, SuccessResponse, UploadedFile } from 'tsoa'
-import StorageClass, { StorageToken } from '../../services/storage.js'
 import { container } from 'tsyringe'
+import StorageClass, { StorageToken } from '../../storageClass/index.js'
 
 export interface FileUploadResponse {
   key: string
@@ -35,17 +35,16 @@ export class FilesController extends Controller {
       throw new Error('No file provided')
     }
 
-    // TODO: Add encryption logic here before storing
     const result = await this.storageService.addFile({
       buffer: file.buffer,
-      filename: file.originalname
+      filename: file.originalname,
     })
 
     this.setStatus(201)
     return {
       key: result.key,
       url: result.url,
-      message: 'File uploaded successfully'
+      message: 'File uploaded successfully',
     }
   }
 }

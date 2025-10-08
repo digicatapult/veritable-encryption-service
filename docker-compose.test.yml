@@ -1,23 +1,21 @@
-version: '3.8'
-
 services:
   minio:
     image: minio/minio:latest
-    container_name: minio-encryption
+    container_name: veritable-minio
     ports:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: password
     command: server /data --console-address ":9001"
     volumes:
-      - minio_data:/data
+      - minio-data:/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   minio-setup:
     image: minio/mc:latest
@@ -26,14 +24,15 @@ services:
         condition: service_healthy
     entrypoint: >
       /bin/sh -c "
-      echo 'Setting up Minio buckets and policies...';
-      mc alias set myminio http://minio:9000 minioadmin minioadmin;
-      mc mb --ignore-existing myminio/veritable-encryption;
-      mc mb --ignore-existing myminio/veritable-encryption-test;
-      mc anonymous set download myminio/veritable-encryption;
-      mc anonymous set download myminio/veritable-encryption-test;
-      echo 'Minio setup complete - buckets are publicly readable via HTTP GET';
+      mc alias set encryptionService http://minio:9000 minio password;
+      echo 'Setting bucket to be public';
+      mc anonymous set download encryptionService/test;
+      echo 'Minio setup complete';
       "
-
 volumes:
-  minio_data:
+  minio-data:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: size=100m,uid=1001

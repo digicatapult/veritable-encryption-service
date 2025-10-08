@@ -1,11 +1,11 @@
 import { expect } from 'chai'
 import { Express } from 'express'
-import { describe, it, before } from 'mocha'
+import { before, describe, it } from 'mocha'
 import request from 'supertest'
 import { container } from 'tsyringe'
 
-import createHttpServer from '../../src/server.js'
 import { resetContainer } from '../../src/ioc.js'
+import createHttpServer from '../../src/server.js'
 import StorageClass, { StorageToken } from '../../src/services/storage.js'
 
 describe('Minio Encryption Service Integration', function () {
@@ -16,7 +16,7 @@ describe('Minio Encryption Service Integration', function () {
     resetContainer()
     app = await createHttpServer()
     storageService = container.resolve<StorageClass>(StorageToken)
-    
+
     // Initialize bucket for testing
     await storageService.createBucketIfDoesNotExist()
   })
@@ -35,16 +35,14 @@ describe('Minio Encryption Service Integration', function () {
       expect(response.body).to.have.property('url')
       expect(response.body).to.have.property('message', 'File uploaded successfully')
       expect(response.body.key).to.include(testFileName)
-      
+
       // URL should point directly to Minio for download
       expect(response.body.url).to.match(/^http:\/\/localhost:9000\/veritable-encryption-test\/.*/)
       expect(response.body.url).to.include(response.body.key)
     })
 
     it('should return 400 when no file is provided', async () => {
-      await request(app)
-        .post('/files/upload')
-        .expect(400)
+      await request(app).post('/files/upload').expect(400)
     })
   })
 
@@ -66,15 +64,17 @@ describe('Minio Encryption Service Integration', function () {
 
     it('should allow direct download from Minio URL (anonymous access)', async () => {
       // Test that the returned URL format is correct for direct Minio access
-      expect(directMinioUrl).to.match(/^http:\/\/localhost:9000\/veritable-encryption-test\/\d+-direct-access-test\.txt$/)
-      
+      expect(directMinioUrl).to.match(
+        /^http:\/\/localhost:9000\/veritable-encryption-test\/\d+-direct-access-test\.txt$/
+      )
+
       // Actually test downloading the file from Minio directly using fetch
       const response = await fetch(directMinioUrl)
       expect(response.status).to.equal(200)
-      
+
       const downloadedContent = await response.text()
       expect(downloadedContent).to.equal('Direct Minio access test content')
-      
+
       // Verify URL components for anonymous access
       const urlParts = new URL(directMinioUrl)
       expect(urlParts.hostname).to.equal('localhost')
@@ -91,7 +91,7 @@ describe('Minio Encryption Service Integration', function () {
 
       const result = await storageService.addFile({
         buffer: testBuffer,
-        filename: testFileName
+        filename: testFileName,
       })
 
       expect(result).to.have.property('key')
@@ -104,7 +104,7 @@ describe('Minio Encryption Service Integration', function () {
       const status = await storageService.getStatus()
       expect(status).to.have.property('status')
       expect(status.status).to.be.oneOf(['UP', 'DOWN'])
-      
+
       if (status.status === 'UP') {
         expect(status).to.have.property('detail')
         expect(status.detail).to.have.property('version')
@@ -115,9 +115,7 @@ describe('Minio Encryption Service Integration', function () {
   describe('Service Architecture', function () {
     it('should only expose upload endpoint (no download through encryption service)', async () => {
       // Verify download endpoints are not available on encryption service
-      await request(app)
-        .get('/files/non-existent-file.txt')
-        .expect(404) // Should be 404 because route doesn't exist, not because file doesn't exist
+      await request(app).get('/files/non-existent-file.txt').expect(404) // Should be 404 because route doesn't exist, not because file doesn't exist
     })
 
     it('should return Minio URL for direct access, not proxy downloads', async () => {
