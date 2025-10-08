@@ -14,6 +14,24 @@ export class HttpResponse extends Error {
   }
 }
 
+export class BadRequest extends HttpResponse {
+  constructor(message = 'bad request') {
+    super({ code: 400, message })
+  }
+}
+
+export class InternalError extends HttpResponse {
+  constructor(message = 'internal error') {
+    super({ code: 500, message })
+  }
+}
+
+export class NotFoundError extends HttpResponse {
+  constructor(message = 'not found') {
+    super({ code: 404, message })
+  }
+}
+
 export const errorHandler = function errorHandler(
   err: Error & { code: number; data?: object },
   req: ExRequest,

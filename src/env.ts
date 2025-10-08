@@ -11,6 +11,7 @@ if (process.env.NODE_ENV === 'test') {
 export const envSchema = {
   PORT: envalid.port({ default: 3000 }),
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
+  CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
 }
 
 export type ENV_CONFIG = typeof envSchema
