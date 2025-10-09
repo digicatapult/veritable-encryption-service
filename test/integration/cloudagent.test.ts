@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import { resetContainer } from '../../src/ioc.js'
 import { testCleanup } from '../helpers/cleanup.js'
 import {
   setupTwoPartyContext,
@@ -14,6 +15,7 @@ describe('cloudagent', async () => {
 
   before(async function () {
     this.timeout(10000)
+    resetContainer()
     await setupTwoPartyContext(context)
     await withEstablishedConnection(context)
     await withSchema(context)
