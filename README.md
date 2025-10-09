@@ -21,36 +21,11 @@ The encryption service is designed with a simple, focused architecture:
 
 Use a `.env` at root of the repository to set values for the environment variables defined in `.env` file.
 
-| variable           | required | default                 | description                                                                          |
-| :----------------- | :------: | :---------------------: | :----------------------------------------------------------------------------------- |
-| PORT               |    N     | `3000`                  | The port for the API to listen on                                                    |
-| LOG_LEVEL          |    N     | `info`                  | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`] |
-| MINIO_HOST         |    N     | `localhost`             | Minio server hostname                                                                |
-| MINIO_PORT         |    N     | `9000`                  | Minio server port                                                                    |
-| MINIO_ACCESS_KEY   |    N     | `minioadmin`            | Minio access key                                                                     |
-| MINIO_SECRET_KEY   |    N     | `minioadmin`            | Minio secret key                                                                     |
-| MINIO_BUCKET       |    N     | `veritable-encryption`  | Minio bucket name for file storage                                                   |
-| MINIO_USE_SSL      |    N     | `false`                 | Whether to use SSL for Minio connections                                            |
-
-## API Endpoints
-
-### File Operations
-
-- `POST /files/upload` - Upload and encrypt a file (multipart/form-data with 'file' field)
-  - Returns: `{ key, url, message }` where `url` is a direct Minio URL for anonymous download
-
-### Health Check
-
-- `GET /health` - Service health check
-
-## File Access
-
-Files are accessed directly from Minio using the returned URL:
-
-```
-POST /files/upload → Returns: { url: "http://localhost:9000/bucket/encrypted-file-key" }
-GET http://localhost:9000/bucket/encrypted-file-key → Direct file download
-```
+| variable                | required |        default        | description                                                                          |
+| :---------------------- | :------: | :-------------------: | :----------------------------------------------------------------------------------- |
+| PORT                    |    N     |        `3000`         | The port for the API to listen on                                                    |
+| LOG_LEVEL               |    N     |        `info`         | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`] |
+| CLOUDAGENT_ADMIN_ORIGIN |    y     | http://localhost:3100 | veritable-cloudagent url                                                             |
 
 ## Getting started
 
@@ -77,32 +52,23 @@ npm run dev
 
 View OpenAPI documentation for all routes with Swagger at http://localhost:3000/swagger/
 
-The Minio console is available at http://localhost:9001 (admin/minioadmin)
+## Local HTTPS Certificates
 
-## Usage Examples
+The `veritable-cloudagent` dependency includes a `did:web` server. Since `did:web` always [resolves to HTTPS](https://w3c-ccg.github.io/did-method-web/#read-resolve/), the server runs as HTTPS in dev mode. A local trusted certificate and key must be generated before it can be accessed in your browser.
 
-### Upload a file
+- Install [mkcert](https://github.com/FiloSottile/mkcert#installation).
+- Run the following commands at root:
 
-```bash
-curl -X POST http://localhost:3000/files/upload \
-  -F "file=@example.txt"
+```
+mkcert -install
+mkcert veritable-cloudagent-alice localhost
+mkcert veritable-cloudagent-bob localhost
+export NODE_EXTRA_CA_CERTS="$(mkcert -CAROOT)/rootCA.pem"
 ```
 
-Response:
-```json
-{
-  "key": "1696636800000-example.txt",
-  "url": "http://localhost:9000/veritable-encryption/1696636800000-example.txt",
-  "message": "File uploaded successfully"
-}
-```
+This will create `.pem` and `-key.pem` files for `veritable-cloudagent-{alice|bob}` at root. These are mounted in the docker compose for Alice and Bob cloudagent.
 
-### Download a file (direct from Minio)
-
-```bash
-curl -X GET "http://localhost:9000/veritable-encryption/1696636800000-example.txt" \
-  --output downloaded-file.txt
-```
+`NODE_EXTRA_CA_CERTS` is set to the root CA so that dev certificates are trusted when the agent resolves to `https`. If certificates are setup correctly, after running `docker compose up -d`, it should be possible to see Alice's DID at https://localhost:8443/did.json
 
 ## Tests
 
@@ -112,9 +78,10 @@ Unit tests are executed by calling:
 npm run test:unit
 ```
 
-Integration tests are executed by calling:
+Ensure [certificates](#local-https-certificates) have been generated and `NODE_EXTRA_CA_CERTS` set. Integration tests are executed by calling:
 
 ```sh
+docker compose up -d
 npm run tsoa:build
 npm run test:integration
 ```
