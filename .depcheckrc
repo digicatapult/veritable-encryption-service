@@ -9,5 +9,7 @@ ignores: [
   'prettier-plugin-organize-imports',
   '@tweedegolf/sab-adapter-amazon-s3',
   '@tweedegolf/sab-adapter-azure-blob',
-  '@tweedegolf/sab-adapter-minio'
+  '@tweedegolf/sab-adapter-minio',
+  '@types/multer',
+  'multer',
 ]
