@@ -32,6 +32,7 @@ services:
       STORAGE_BACKEND_ACCESS_KEY_ID: minio
       STORAGE_BACKEND_SECRET_ACCESS_KEY: password
       STORAGE_BACKEND_BUCKET_NAME: test
+      CLOUDAGENT_ADMIN_ORIGIN: http://localhost:3100
       LOG_LEVEL: debug
     depends_on:
       minio:

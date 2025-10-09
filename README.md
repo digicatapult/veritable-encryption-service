@@ -4,47 +4,51 @@
 
 An API facilitating encryption and storage for Digital Catapult's [Veritable](https://github.com/digicatapult/veritable-documentation) SSI solution. This service acts as an encryption layer for file storage, uploading encrypted files to Minio and providing direct access URLs for anonymous downloads.
 
-## Architecture
-
-The encryption service is designed with a simple, focused architecture:
-
-- **Upload**: Files are uploaded to the encryption service, processed (encrypted), and stored in Minio
-- **Download**: Files are downloaded directly from Minio via HTTP GET (no proxy through the encryption service)
-- **Anonymous Access**: Minio buckets are configured for public read access
-
-```
-[Client] --upload--> [Encryption Service] --store--> [Minio]
-[Client] --download--> [Minio] (direct access)
-```
-
 ## Configuration
 
 Use a `.env` at root of the repository to set values for the environment variables defined in `.env` file.
 
-| variable                | required |        default        | description                                                                          |
-| :---------------------- | :------: | :-------------------: | :----------------------------------------------------------------------------------- |
-| PORT                    |    N     |        `3000`         | The port for the API to listen on                                                    |
-| LOG_LEVEL               |    N     |        `info`         | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`] |
-| CLOUDAGENT_ADMIN_ORIGIN |    y     | http://localhost:3100 | veritable-cloudagent url                                                             |
+| variable                              | required |                                      default                                      | description                                                                          |
+| :------------------------------------ | :------: | :-------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------- |
+| PORT                                  |    N     |                                      `3000`                                      | The port for the API to listen on                                                   |
+| LOG_LEVEL                             |    N     |                                      `info`                                      | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`] |
+| CLOUDAGENT_ADMIN_ORIGIN               |    Y     |                            http://localhost:3100                                 | veritable-cloudagent url                                                             |
+| STORAGE_BACKEND_MODE                  |    N     |                                     `MINIO`                                      | Storage backend type. Valid values are [`S3`, `AZURE`, `MINIO`]                     |
+| STORAGE_BACKEND_HOST                  |    N     |                                   `localhost`                                    | Storage backend host                                                                 |
+| STORAGE_BACKEND_PORT                  |    N     |                    `9000` (Minio/S3) or `10000` (Azure)                         | Storage backend port                                                                 |
+| STORAGE_BACKEND_PROTOCOL              |    N     |                                      `http`                                      | Storage backend protocol (`http` or `https`)                                        |
+| STORAGE_BACKEND_BUCKET_NAME           |    N     |                                      `test`                                      | Storage bucket/container name                                                        |
+| STORAGE_BACKEND_ACCESS_KEY_ID         |    N     |                                     `minio`                                      | S3/Minio access key ID (required for S3/MINIO modes)                               |
+| STORAGE_BACKEND_SECRET_ACCESS_KEY     |    N     |                                    `password`                                    | S3/Minio secret access key (required for S3/MINIO modes)                           |
+| STORAGE_BACKEND_S3_REGION             |    N     |                                   `eu-west-2`                                    | S3 region (required for S3 mode)                                                    |
+| STORAGE_BACKEND_ACCOUNT_NAME          |    N     |                                `devstoreaccount1`                                | Azure storage account name (required for AZURE mode)                               |
+| STORAGE_BACKEND_ACCOUNT_SECRET        |    N     | `Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==` | Azure storage account key (required for AZURE mode)                                |
 
 ## Getting started
 
 ### Development with local Minio
 
-```sh
-# Start Minio using Docker Compose
-docker-compose -f docker-compose.test.yml up -d
+Start the required services using Docker Compose:
 
+```sh
+# Start Minio
+docker compose -f docker-compose.test.yml up minio -d
 # Install packages
 npm i
-
-# Start service in dev mode
+# Build
+npm run build
+# Start encryption service in dev mode
 npm run dev
+# make local minio bucket public
+docker compose -f docker-compose.test.yml up --no-deps minio-setup -d
 ```
 
-### Without Docker
+The encryption service will be available at http://localhost:3000
+
+### Development with external storage
+
 ```sh
-# install packages
+# Install packages
 npm i
 # start service in dev mode (requires external Minio instance)
 npm run dev

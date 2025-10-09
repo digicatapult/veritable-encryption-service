@@ -42,6 +42,7 @@ export default class StorageClass {
         endPoint: env.get('STORAGE_BACKEND_HOST'),
         port: env.get('STORAGE_BACKEND_PORT'),
         bucketName: env.get('STORAGE_BACKEND_BUCKET_NAME').toString(),
+        useSSL: env.get('STORAGE_BACKEND_PROTOCOL') === 'https',
       }
     }
     logger.info('Storage configuration: %s', JSON.stringify(this.config))
