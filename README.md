@@ -85,15 +85,7 @@ npm run test:unit
 Ensure [certificates](#local-https-certificates) have been generated and `NODE_EXTRA_CA_CERTS` set. Integration tests are executed by calling:
 
 ```sh
-docker compose up -d
+docker compose -f docker-compose.test.yml up -d
 npm run tsoa:build
 npm run test:integration
 ```
-
-Integration tests with Minio (requires Docker):
-
-```sh
-npm run test:integration:minio
-```
-
-This will start Minio in Docker, run the integration tests, and clean up afterwards.
