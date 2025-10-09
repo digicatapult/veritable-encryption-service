@@ -11,7 +11,7 @@ if (process.env.NODE_ENV === 'test') {
 type BaseEnv = {
   PORT: number
   LOG_LEVEL: string
-  STORAGE_BACKEND_MODE: 'S3' | 'AZURE'
+  STORAGE_BACKEND_MODE: 'S3' | 'AZURE' | 'MINIO'
 }
 
 // Specific types for each storage mode
@@ -36,13 +36,23 @@ type AzureEnv = BaseEnv & {
   STORAGE_BACKEND_BUCKET_NAME: string
 }
 
+type MinioEnv = BaseEnv & {
+  STORAGE_BACKEND_MODE: 'MINIO'
+  STORAGE_BACKEND_HOST: string
+  STORAGE_BACKEND_PORT: number
+  STORAGE_BACKEND_ACCESS_KEY_ID: string
+  STORAGE_BACKEND_SECRET_ACCESS_KEY: string
+  STORAGE_BACKEND_PROTOCOL: string
+  STORAGE_BACKEND_BUCKET_NAME: string
+}
+
 // Union type of all possible env configurations
-type Env = S3Env | AzureEnv
+type Env = S3Env | AzureEnv | MinioEnv
 
 export const baseSchema = {
   PORT: envalid.port({ default: 3000 }),
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
-  STORAGE_BACKEND_MODE: envalid.str({ devDefault: 'S3', choices: ['S3', 'AZURE'] }),
+  STORAGE_BACKEND_MODE: envalid.str({ devDefault: 'MINIO', choices: ['S3', 'AZURE', 'MINIO'] }),
 }
 
 export const s3Schema = {
@@ -66,14 +76,25 @@ export const azureSchema = {
   STORAGE_BACKEND_BUCKET_NAME: envalid.str({ devDefault: 'test' }),
 }
 
+export const minioSchema = {
+  STORAGE_BACKEND_HOST: envalid.host({ devDefault: 'localhost' }),
+  STORAGE_BACKEND_PORT: envalid.port({ default: 9000 }),
+  STORAGE_BACKEND_ACCESS_KEY_ID: envalid.str({ devDefault: 'minio' }),
+  STORAGE_BACKEND_SECRET_ACCESS_KEY: envalid.str({ devDefault: 'password' }),
+  STORAGE_BACKEND_PROTOCOL: envalid.str({ default: 'http', devDefault: 'http' }),
+  STORAGE_BACKEND_BUCKET_NAME: envalid.str({ devDefault: 'test' }),
+}
+
 function getStorageSchema(storageMode: string) {
   switch (storageMode.toUpperCase()) {
     case 'S3':
       return { ...baseSchema, ...s3Schema }
     case 'AZURE':
       return { ...baseSchema, ...azureSchema }
+    case 'MINIO':
+      return { ...baseSchema, ...minioSchema }
     default:
-      throw new Error(`Invalid storage mode: ${storageMode}. Must be one of: S3, AZURE`)
+      throw new Error(`Invalid storage mode: ${storageMode}. Must be one of: S3, AZURE, MINIO`)
   }
 }
 
@@ -90,7 +111,7 @@ const env = envalid.cleanEnv(process.env, envSchema) as Env
 export default env
 
 export const EnvToken = Symbol('Env')
-export type { AzureEnv, Env, S3Env }
+export type { AzureEnv, Env, MinioEnv, S3Env }
 
 // Type guard functions
 export function isS3Env(env: Env): env is S3Env {
@@ -99,4 +120,8 @@ export function isS3Env(env: Env): env is S3Env {
 
 export function isAzureEnv(env: Env): env is AzureEnv {
   return env.STORAGE_BACKEND_MODE === 'AZURE'
+}
+
+export function isMinioEnv(env: Env): env is MinioEnv {
+  return env.STORAGE_BACKEND_MODE === 'MINIO'
 }

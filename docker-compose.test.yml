@@ -16,11 +16,31 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  
+  encryption-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: veritable-encryption-service
+    ports:
+      - "3000:3000"
+    environment:
+      STORAGE_BACKEND_MODE: MINIO
+      STORAGE_BACKEND_HOST: minio
+      STORAGE_BACKEND_PORT: 9000
+      STORAGE_BACKEND_PROTOCOL: http
+      STORAGE_BACKEND_ACCESS_KEY_ID: minio
+      STORAGE_BACKEND_SECRET_ACCESS_KEY: password
+      STORAGE_BACKEND_BUCKET_NAME: test
+      LOG_LEVEL: debug
+    depends_on:
+      minio:
+        condition: service_healthy
 
   minio-setup:
     image: minio/mc:latest
     depends_on:
-      minio:
+      encryption-service:
         condition: service_healthy
     entrypoint: >
       /bin/sh -c "

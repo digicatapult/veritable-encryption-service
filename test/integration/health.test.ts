@@ -1,21 +1,12 @@
 import { expect } from 'chai'
-import { Express } from 'express'
 import { describe, it } from 'mocha'
 import request from 'supertest'
 import version from '../../src/version.js'
 
-import { resetContainer } from '../../src/ioc.js'
-import createHttpServer from '../../src/server.js'
-
 describe('health check', function () {
-  let app: Express
-
-  before(async () => {
-    resetContainer()
-    app = await createHttpServer()
-  })
+  const ENCRYPTION_SERVICE_URL = 'http://localhost:3000'
   it('returns 200', async () => {
-    const { status, body } = await request(app).get('/health')
+    const { status, body } = await request(ENCRYPTION_SERVICE_URL).get('/health')
     expect(status).to.equal(200)
 
     expect(body).to.deep.equal({

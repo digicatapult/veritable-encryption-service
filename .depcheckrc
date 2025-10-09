@@ -7,4 +7,7 @@ ignores: [
   'ts-node',
   'rimraf',
   'prettier-plugin-organize-imports',
+  '@tweedegolf/sab-adapter-amazon-s3',
+  '@tweedegolf/sab-adapter-azure-blob',
+  '@tweedegolf/sab-adapter-minio'
 ]
