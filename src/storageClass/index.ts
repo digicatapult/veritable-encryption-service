@@ -45,10 +45,7 @@ export default class StorageClass {
         useSSL: env.get('STORAGE_BACKEND_PROTOCOL') === 'https',
       }
     }
-    logger.info('Storage configuration: %s', JSON.stringify(this.config))
-    if (this.config === undefined) {
-      throw new Error('Storage config not found')
-    }
+
     this.storage = new Storage(this.config)
     this.logger.child({ module: 'Storage Class' })
     this.logger.info('Storage config: %j', this.config)
@@ -99,8 +96,19 @@ export default class StorageClass {
       return { key: integrityHash, url: urlString }
     }
 
-    urlString = (await this.storage.getSignedURL(this.env.get('STORAGE_BACKEND_BUCKET_NAME').toString(), integrityHash))
-      .value!
+    const signedUrlResult = await this.storage.getSignedURL(
+      this.env.get('STORAGE_BACKEND_BUCKET_NAME').toString(),
+      integrityHash
+    )
+    if (signedUrlResult.error !== null) {
+      this.logger.error('Failed to get signed URL: %s', signedUrlResult.error)
+      throw new Error('Failed to get signed URL')
+    }
+    if (signedUrlResult.value === null) {
+      this.logger.error('Signed URL value is null')
+      throw new Error('Signed URL value is null')
+    }
+    urlString = signedUrlResult.value
 
     return { key: integrityHash, url: urlString }
   }
