@@ -88,19 +88,6 @@ export class Env {
 
 export const EnvToken = Symbol('Env')
 
-// Type guard functions for the Env class instance
-export function isS3Env(env: Env): boolean {
-  return env.get('STORAGE_BACKEND_MODE') === 'S3'
-}
-
-export function isAzureEnv(env: Env): boolean {
-  return env.get('STORAGE_BACKEND_MODE') === 'AZURE'
-}
-
-export function isMinioEnv(env: Env): boolean {
-  return env.get('STORAGE_BACKEND_MODE') === 'MINIO'
-}
-
 // Base environment type that's common to all storage modes
 type BaseEnv = {
   PORT: number

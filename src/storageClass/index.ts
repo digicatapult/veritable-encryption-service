@@ -3,7 +3,6 @@ import { type Logger } from 'pino'
 import { inject, injectable } from 'tsyringe'
 import { Env } from '../env.js'
 import { LoggerToken } from '../logger.js'
-import { sha256HashFromBuffer } from '../utils/hashing.js'
 
 export const StorageToken = Symbol('StorageToken')
 
@@ -72,17 +71,16 @@ export default class StorageClass {
     }
   }
 
-  async addFile({ buffer, filename }: { buffer: Buffer; filename: string }): Promise<{
+  async addFile({ buffer, targetPath }: { buffer: Buffer; targetPath: string }): Promise<{
     key: string
     url: string
   }> {
-    this.logger.debug('Uploading file %s', filename)
+    this.logger.debug('Uploading file %s', targetPath)
     await this.createBucketIfDoesNotExist()
-    const integrityHash = sha256HashFromBuffer(buffer)
 
     const upload = await this.storage.addFileFromBuffer({
       buffer: buffer,
-      targetPath: integrityHash,
+      targetPath: targetPath,
       bucketName: this.env.get('STORAGE_BACKEND_BUCKET_NAME').toString(),
     })
     if (upload.error !== null) {
@@ -90,59 +88,20 @@ export default class StorageClass {
       throw new Error('Failed to upload file')
     }
 
-    let urlString: string
-    if (this.env.get('STORAGE_BACKEND_MODE') === 'MINIO') {
-      urlString = `${this.env.get('STORAGE_BACKEND_PROTOCOL')}://localhost:${this.env.get('STORAGE_BACKEND_PORT')}/${this.env.get('STORAGE_BACKEND_BUCKET_NAME')}/${integrityHash}`
-      return { key: integrityHash, url: urlString }
-    }
-
     const signedUrlResult = await this.storage.getSignedURL(
       this.env.get('STORAGE_BACKEND_BUCKET_NAME').toString(),
-      integrityHash
+      targetPath
     )
     if (signedUrlResult.error !== null) {
       this.logger.error('Failed to get signed URL: %s', signedUrlResult.error)
       throw new Error('Failed to get signed URL')
     }
     if (signedUrlResult.value === null) {
-      this.logger.error('Signed URL value is null')
       throw new Error('Signed URL value is null')
     }
-    urlString = signedUrlResult.value
+    const urlString = signedUrlResult.value
 
-    return { key: integrityHash, url: urlString }
-  }
-
-  getStatus = async () => {
-    try {
-      const buckets = await this.storage.listBuckets()
-      if (buckets.error !== null) {
-        logStatusError(this.logger, buckets.error)
-        return {
-          status: 'DOWN',
-          detail: { message: `Error getting status from storage ${buckets.error}` },
-        }
-      }
-    } catch (e) {
-      logStatusError(this.logger, e)
-      return {
-        status: 'DOWN',
-        detail: { message: `Error getting status from storage ${e}` },
-      }
-    }
-    return {
-      status: 'UP',
-      detail: { version: '1.0.0', peerCount: 0 },
-    }
-  }
-}
-
-const logStatusError = (logger: Logger, details: unknown) => {
-  if (details instanceof Error) {
-    logger.error('Error getting status from storage. Message: %s', details.message)
-    logger.debug('Error getting status from storage. Stack: %s', details.stack ?? 'no stack')
-  } else {
-    logger.error('Error getting status from storage: %s', JSON.stringify(details))
+    return { key: targetPath, url: urlString }
   }
 }
 

@@ -37,7 +37,7 @@ export class FilesController extends Controller {
 
     const result = await this.storageService.addFile({
       buffer: file.buffer,
-      filename: file.originalname,
+      targetPath: file.originalname,
     })
 
     this.setStatus(201)
