@@ -16,7 +16,6 @@ jobs:
   tests-integration:
     uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
     with:
-      docker_compose_file: 'docker-compose.test.yml'
       npm_build_command: >
         sudo apt-get update &&
         sudo apt-get install -y libnss3-tools mkcert &&
