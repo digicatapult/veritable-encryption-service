@@ -1,13 +1,13 @@
 import { container } from 'tsyringe'
 
-import { Env } from '../../src/env.js'
+import { Env, EnvToken } from '../../src/env.js'
 import { UUID } from '../../src/models/stringTypes.js'
 import VeritableCloudagent from '../../src/services/cloudagent/index.js'
 import { Connection, Credential } from '../../src/services/cloudagent/types.js'
 import { mockEnvBob, mockLogger } from './mock.js'
 import { pollUntil } from './poll.js'
 
-const aliceEnv = container.resolve(Env)
+const aliceEnv = container.resolve<Env>(EnvToken)
 
 const didKey = 'did:key:z6Mkk7yqnGF3YwTrLpqrW6PGsKci7dNqh1CjnvMbzrMerSeL' // to register schemas and cred defs
 
@@ -29,7 +29,7 @@ export async function setupTwoPartyContext(context: TwoPartyContext) {
 }
 
 export const withEstablishedConnection = async (context: TwoPartyContext) => {
-  const invitation = await fetch(`${aliceEnv.get('CLOUDAGENT_ADMIN_ORIGIN')}/v1/oob/create-invitation`, {
+  const invitation = await fetch(`${aliceEnv.CLOUDAGENT_ADMIN_ORIGIN}/v1/oob/create-invitation`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export const withEstablishedConnection = async (context: TwoPartyContext) => {
   const aliceToBobInvitationUrl = invitationJson.invitationUrl
   const aliceOobRecordId = invitationJson.outOfBandRecord.id
 
-  const bobInvitation = await fetch(`${mockEnvBob.get('CLOUDAGENT_ADMIN_ORIGIN')}/v1/oob/receive-invitation-url`, {
+  const bobInvitation = await fetch(`${mockEnvBob.CLOUDAGENT_ADMIN_ORIGIN}/v1/oob/receive-invitation-url`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
