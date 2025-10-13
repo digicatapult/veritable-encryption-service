@@ -25,7 +25,7 @@ import StorageClass, { StorageToken } from './storageClass/index.js'
 
   const app: Express = await Server()
 
-  app.listen(env.get('PORT'), () => {
-    logger.info(`veritable-encryption-service listening on ${env.get('PORT')} port`)
+  app.listen(env.PORT, () => {
+    logger.info(`veritable-encryption-service listening on ${env.PORT} port`)
   })
 })()

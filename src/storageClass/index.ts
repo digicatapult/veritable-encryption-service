@@ -1,7 +1,7 @@
 import { Storage, StorageAdapterConfig, StorageType } from '@tweedegolf/storage-abstraction'
 import { type Logger } from 'pino'
 import { inject, injectable } from 'tsyringe'
-import { Env } from '../env.js'
+import { AzureEnv, EnvToken, MinioEnv, S3Env, type Env } from '../env.js'
 import { LoggerToken } from '../logger.js'
 
 export const StorageToken = Symbol('StorageToken')
@@ -9,10 +9,10 @@ export const StorageToken = Symbol('StorageToken')
 @injectable()
 export default class StorageClass {
   private storage: Storage
-  private config: StorageAdapterConfig
+  private config: StorageAdapterConfig | undefined
 
   constructor(
-    private env: Env,
+    @inject(EnvToken) private env: S3Env | AzureEnv | MinioEnv,
     @inject(LoggerToken) private logger: Logger
   ) {
     if (!isS3Env(env) && !isAzureEnv(env) && !isMinioEnv(env)) {
@@ -21,27 +21,27 @@ export default class StorageClass {
     if (isS3Env(env)) {
       this.config = {
         type: StorageType.S3, // S3 config
-        accessKeyId: env.get('STORAGE_BACKEND_ACCESS_KEY_ID'),
-        secretAccessKey: env.get('STORAGE_BACKEND_SECRET_ACCESS_KEY'),
-        endpoint: `${env.get('STORAGE_BACKEND_PROTOCOL')}://${env.get('STORAGE_BACKEND_HOST')}:${env.get('STORAGE_BACKEND_PORT')}`,
-        region: env.get('STORAGE_BACKEND_S3_REGION'),
-        port: env.get('STORAGE_BACKEND_PORT'),
+        accessKeyId: env.STORAGE_BACKEND_ACCESS_KEY_ID,
+        secretAccessKey: env.STORAGE_BACKEND_SECRET_ACCESS_KEY,
+        endpoint: `${env.STORAGE_BACKEND_PROTOCOL}://${env.STORAGE_BACKEND_HOST}:${env.STORAGE_BACKEND_PORT}`,
+        region: env.STORAGE_BACKEND_S3_REGION,
+        port: env.STORAGE_BACKEND_PORT,
         forcePathStyle: true,
       }
     } else if (isAzureEnv(env)) {
       this.config = {
         type: StorageType.AZURE, // azure config
-        connectionString: `DefaultEndpointsProtocol=${env.get('STORAGE_BACKEND_PROTOCOL')};AccountName=${env.get('STORAGE_BACKEND_ACCOUNT_NAME')};AccountKey=${env.get('STORAGE_BACKEND_ACCOUNT_SECRET')};BlobEndpoint=${env.get('STORAGE_BACKEND_PROTOCOL')}://${env.get('STORAGE_BACKEND_HOST')}:${env.get('STORAGE_BACKEND_PORT')}/${env.get('STORAGE_BACKEND_ACCOUNT_NAME')}`,
+        connectionString: `DefaultEndpointsProtocol=${env.STORAGE_BACKEND_PROTOCOL};AccountName=${env.STORAGE_BACKEND_ACCOUNT_NAME};AccountKey=${env.STORAGE_BACKEND_ACCOUNT_SECRET};BlobEndpoint=${env.STORAGE_BACKEND_PROTOCOL}://${env.STORAGE_BACKEND_HOST}:${env.STORAGE_BACKEND_PORT}/${env.STORAGE_BACKEND_ACCOUNT_NAME}`,
       }
     } else {
       this.config = {
         type: StorageType.MINIO, // minio config
-        accessKey: env.get('STORAGE_BACKEND_ACCESS_KEY_ID'),
-        secretKey: env.get('STORAGE_BACKEND_SECRET_ACCESS_KEY'),
-        endPoint: env.get('STORAGE_BACKEND_HOST'),
-        port: env.get('STORAGE_BACKEND_PORT'),
-        bucketName: env.get('STORAGE_BACKEND_BUCKET_NAME').toString(),
-        useSSL: env.get('STORAGE_BACKEND_PROTOCOL') === 'https',
+        accessKey: env.STORAGE_BACKEND_ACCESS_KEY_ID,
+        secretKey: env.STORAGE_BACKEND_SECRET_ACCESS_KEY,
+        endPoint: env.STORAGE_BACKEND_HOST,
+        port: env.STORAGE_BACKEND_PORT,
+        bucketName: env.STORAGE_BACKEND_BUCKET_NAME.toString(),
+        useSSL: env.STORAGE_BACKEND_PROTOCOL === 'https',
       }
     }
 
@@ -57,7 +57,7 @@ export default class StorageClass {
       throw new Error(`Failed to list buckets, ${buckets.error}`)
     }
 
-    const bucketName = this.env.get('STORAGE_BACKEND_BUCKET_NAME').toString()
+    const bucketName = this.env.STORAGE_BACKEND_BUCKET_NAME.toString()
     const bucketExists = buckets.value?.find((bucket) => bucket === bucketName)
     if (bucketExists) {
       return
@@ -79,17 +79,14 @@ export default class StorageClass {
     const upload = await this.storage.addFileFromBuffer({
       buffer: buffer,
       targetPath: targetPath,
-      bucketName: this.env.get('STORAGE_BACKEND_BUCKET_NAME').toString(),
+      bucketName: this.env.STORAGE_BACKEND_BUCKET_NAME.toString(),
     })
     if (upload.error !== null) {
       this.logger.error('Failed to upload file: %s', upload.error)
       throw new Error('Failed to upload file')
     }
 
-    const signedUrlResult = await this.storage.getSignedURL(
-      this.env.get('STORAGE_BACKEND_BUCKET_NAME').toString(),
-      targetPath
-    )
+    const signedUrlResult = await this.storage.getSignedURL(this.env.STORAGE_BACKEND_BUCKET_NAME.toString(), targetPath)
     if (signedUrlResult.error !== null) {
       this.logger.error('Failed to get signed URL: %s', signedUrlResult.error)
       throw new Error('Failed to get signed URL')
@@ -104,14 +101,14 @@ export default class StorageClass {
 }
 
 // Type guard functions for the Env class instance
-function isS3Env(env: Env): boolean {
-  return env.get('STORAGE_BACKEND_MODE') === 'S3'
+function isS3Env(env: Env): env is S3Env {
+  return env.STORAGE_BACKEND_MODE === 'S3'
 }
 
-function isAzureEnv(env: Env): boolean {
-  return env.get('STORAGE_BACKEND_MODE') === 'AZURE'
+function isAzureEnv(env: Env): env is AzureEnv {
+  return env.STORAGE_BACKEND_MODE === 'AZURE'
 }
 
-function isMinioEnv(env: Env): boolean {
-  return env.get('STORAGE_BACKEND_MODE') === 'MINIO'
+function isMinioEnv(env: Env): env is MinioEnv {
+  return env.STORAGE_BACKEND_MODE === 'MINIO'
 }

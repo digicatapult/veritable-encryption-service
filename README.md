@@ -31,16 +31,14 @@ Use a `.env` at root of the repository to set values for the environment variabl
 Start the required services using Docker Compose:
 
 ```sh
-# Start Minio
-docker compose -f docker-compose.test.yml up minio -d
+# Bring up local docker dependencies
+docker compose up -d
 # Install packages
 npm i
 # Build
 npm run build
 # Start encryption service in dev mode
 npm run dev
-# make local minio bucket public
-docker compose -f docker-compose.test.yml up --no-deps minio-setup -d
 ```
 
 The encryption service will be available at http://localhost:3000
@@ -50,7 +48,7 @@ The encryption service will be available at http://localhost:3000
 ```sh
 # Install packages
 npm i
-# start service in dev mode (requires external Minio instance)
+# start service in dev mode
 npm run dev
 ```
 
@@ -85,7 +83,6 @@ npm run test:unit
 Ensure [certificates](#local-https-certificates) have been generated and `NODE_EXTRA_CA_CERTS` set. Integration tests are executed by calling:
 
 ```sh
-docker compose -f docker-compose.test.yml up -d
 npm run tsoa:build
 npm run test:integration
 ```

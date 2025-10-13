@@ -162,7 +162,7 @@ export default class Cloudagent {
   }
 
   private async noBodyRequest<O>(method: 'GET' | 'DELETE', path: string, parse: parserFn<O>): Promise<O> {
-    const url = `${this.env.get('CLOUDAGENT_ADMIN_ORIGIN')}${path}`
+    const url = `${this.env.CLOUDAGENT_ADMIN_ORIGIN}${path}`
 
     const response = await fetch(url, {
       method,
@@ -197,7 +197,7 @@ export default class Cloudagent {
     body: Record<string, unknown>,
     parse: parserFn<O>
   ): Promise<O> {
-    const url = `${this.env.get('CLOUDAGENT_ADMIN_ORIGIN')}${path}`
+    const url = `${this.env.CLOUDAGENT_ADMIN_ORIGIN}${path}`
 
     const response = await fetch(url, {
       method,

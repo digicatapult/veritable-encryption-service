@@ -4,9 +4,7 @@ import { container } from 'tsyringe'
 import StorageClass, { StorageToken } from '../../storageClass/index.js'
 
 export interface FileUploadResponse {
-  key: string
   url: string
-  message: string
 }
 
 @Route('files')
@@ -23,7 +21,7 @@ export class FilesController extends Controller {
    * @description Uploads a file to Minio storage. The file will be available for direct download from Minio using the returned URL.
    */
   @SuccessResponse(201, 'File uploaded successfully')
-  @Post('upload')
+  @Post('/')
   public async uploadFile(
     @Request() req: express.Request,
     @UploadedFile() file: Express.Multer.File
@@ -42,9 +40,7 @@ export class FilesController extends Controller {
 
     this.setStatus(201)
     return {
-      key: result.key,
       url: result.url,
-      message: 'File uploaded successfully',
     }
   }
 }

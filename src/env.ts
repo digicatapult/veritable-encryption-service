@@ -1,12 +1,52 @@
 import dotenv from 'dotenv'
 import * as envalid from 'envalid'
-import { singleton } from 'tsyringe'
 
 if (process.env.NODE_ENV === 'test') {
   dotenv.config({ path: 'test/test.env' })
 } else {
   dotenv.config()
 }
+
+// Base environment type that's common to all storage modes
+type BaseEnv = {
+  PORT: number
+  LOG_LEVEL: string
+  STORAGE_BACKEND_MODE: 'S3' | 'AZURE' | 'MINIO'
+  CLOUDAGENT_ADMIN_ORIGIN: string
+}
+// Specific types for each storage mode
+type S3Env = BaseEnv & {
+  STORAGE_BACKEND_MODE: 'S3'
+  STORAGE_BACKEND_HOST: string
+  STORAGE_BACKEND_PORT: number
+  STORAGE_BACKEND_S3_REGION: string
+  STORAGE_BACKEND_ACCESS_KEY_ID: string
+  STORAGE_BACKEND_SECRET_ACCESS_KEY: string
+  STORAGE_BACKEND_PROTOCOL: string
+  STORAGE_BACKEND_BUCKET_NAME: string
+}
+
+type AzureEnv = BaseEnv & {
+  STORAGE_BACKEND_MODE: 'AZURE'
+  STORAGE_BACKEND_HOST: string
+  STORAGE_BACKEND_PORT: number
+  STORAGE_BACKEND_ACCOUNT_NAME: string
+  STORAGE_BACKEND_ACCOUNT_SECRET: string
+  STORAGE_BACKEND_PROTOCOL: string
+  STORAGE_BACKEND_BUCKET_NAME: string
+}
+
+type MinioEnv = BaseEnv & {
+  STORAGE_BACKEND_MODE: 'MINIO'
+  STORAGE_BACKEND_HOST: string
+  STORAGE_BACKEND_PORT: number
+  STORAGE_BACKEND_ACCESS_KEY_ID: string
+  STORAGE_BACKEND_SECRET_ACCESS_KEY: string
+  STORAGE_BACKEND_PROTOCOL: string
+  STORAGE_BACKEND_BUCKET_NAME: string
+}
+
+type Env = S3Env | AzureEnv | MinioEnv
 
 export const baseSchema = {
   PORT: envalid.port({ default: 3000 }),
@@ -73,57 +113,8 @@ export const envSchema = getStorageSchema(storageMode)
 export type ENV_SCHEMA = typeof envSchema
 export type ENV_KEYS = keyof (typeof baseSchema & typeof s3Schema & typeof azureSchema & typeof minioSchema)
 
-@singleton()
-export class Env {
-  private readonly vals: envalid.CleanedEnv<ENV_SCHEMA>
-
-  constructor() {
-    this.vals = envalid.cleanEnv(process.env, envSchema)
-  }
-
-  get<K extends ENV_KEYS>(key: K): string | number | boolean {
-    return this.vals[key as keyof typeof this.vals]
-  }
-}
+const env = envalid.cleanEnv(process.env, envSchema) as Env
+export default env
 
 export const EnvToken = Symbol('Env')
-
-// Base environment type that's common to all storage modes
-type BaseEnv = {
-  PORT: number
-  LOG_LEVEL: string
-  STORAGE_BACKEND_MODE: 'S3' | 'AZURE' | 'MINIO'
-  CLOUDAGENT_ADMIN_ORIGIN: string
-}
-
-// Specific types for each storage mode
-export type S3Env = BaseEnv & {
-  STORAGE_BACKEND_MODE: 'S3'
-  STORAGE_BACKEND_HOST: string
-  STORAGE_BACKEND_PORT: number
-  STORAGE_BACKEND_S3_REGION: string
-  STORAGE_BACKEND_ACCESS_KEY_ID: string
-  STORAGE_BACKEND_SECRET_ACCESS_KEY: string
-  STORAGE_BACKEND_PROTOCOL: string
-  STORAGE_BACKEND_BUCKET_NAME: string
-}
-
-export type AzureEnv = BaseEnv & {
-  STORAGE_BACKEND_MODE: 'AZURE'
-  STORAGE_BACKEND_HOST: string
-  STORAGE_BACKEND_PORT: number
-  STORAGE_BACKEND_ACCOUNT_NAME: string
-  STORAGE_BACKEND_ACCOUNT_SECRET: string
-  STORAGE_BACKEND_PROTOCOL: string
-  STORAGE_BACKEND_BUCKET_NAME: string
-}
-
-export type MinioEnv = BaseEnv & {
-  STORAGE_BACKEND_MODE: 'MINIO'
-  STORAGE_BACKEND_HOST: string
-  STORAGE_BACKEND_PORT: number
-  STORAGE_BACKEND_ACCESS_KEY_ID: string
-  STORAGE_BACKEND_SECRET_ACCESS_KEY: string
-  STORAGE_BACKEND_PROTOCOL: string
-  STORAGE_BACKEND_BUCKET_NAME: string
-}
+export { AzureEnv, Env, MinioEnv, S3Env }
