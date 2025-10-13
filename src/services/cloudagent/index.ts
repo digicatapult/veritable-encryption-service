@@ -2,7 +2,7 @@ import type { Logger } from 'pino'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import { Env } from '../../env.js'
+import { type Env, EnvToken } from '../../env.js'
 import { BadRequest, InternalError, NotFoundError } from '../../error.js'
 import { LoggerToken } from '../../logger.js'
 import { DID, SchemaId, UUID, Version } from '../../models/stringTypes.js'
@@ -30,7 +30,7 @@ import {
 @injectable()
 export default class Cloudagent {
   constructor(
-    private env: Env,
+    @inject(EnvToken) protected env: Env,
     @inject(LoggerToken) protected logger: Logger
   ) {}
 
