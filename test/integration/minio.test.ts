@@ -30,7 +30,7 @@ describe('Minio Encryption Service Integration', function () {
       // Verify URL components for anonymous access
       const urlParts = new URL(directMinioUrl)
       expect(urlParts.hostname).to.equal(env.STORAGE_BACKEND_HOST)
-      expect(urlParts.port).to.equal(env.STORAGE_BACKEND_PORT)
+      expect(urlParts.port).to.equal(env.STORAGE_BACKEND_PORT.toString())
       expect(urlParts.pathname).to.include(`test/direct-access-test.txt`)
 
       // Actually test downloading the file from Minio directly using fetch
