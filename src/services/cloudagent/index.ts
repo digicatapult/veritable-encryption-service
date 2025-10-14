@@ -2,7 +2,7 @@ import type { Logger } from 'pino'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import { Env } from '../../env.js'
+import { type Env, EnvToken } from '../../env.js'
 import { BadRequest, InternalError, NotFoundError } from '../../error.js'
 import { LoggerToken } from '../../logger.js'
 import { DID, SchemaId, UUID, Version } from '../../models/stringTypes.js'
@@ -30,7 +30,7 @@ import {
 @injectable()
 export default class Cloudagent {
   constructor(
-    private env: Env,
+    @inject(EnvToken) protected env: Env,
     @inject(LoggerToken) protected logger: Logger
   ) {}
 
@@ -162,7 +162,7 @@ export default class Cloudagent {
   }
 
   private async noBodyRequest<O>(method: 'GET' | 'DELETE', path: string, parse: parserFn<O>): Promise<O> {
-    const url = `${this.env.get('CLOUDAGENT_ADMIN_ORIGIN')}${path}`
+    const url = `${this.env.CLOUDAGENT_ADMIN_ORIGIN}${path}`
 
     const response = await fetch(url, {
       method,
@@ -197,7 +197,7 @@ export default class Cloudagent {
     body: Record<string, unknown>,
     parse: parserFn<O>
   ): Promise<O> {
-    const url = `${this.env.get('CLOUDAGENT_ADMIN_ORIGIN')}${path}`
+    const url = `${this.env.CLOUDAGENT_ADMIN_ORIGIN}${path}`
 
     const response = await fetch(url, {
       method,
