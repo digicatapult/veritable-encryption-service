@@ -1,5 +1,6 @@
 import { container } from 'tsyringe'
 
+import env from '../../src/env.js'
 import { UUID } from '../../src/models/stringTypes.js'
 import VeritableCloudagent from '../../src/services/cloudagent/index.js'
 import { Connection, Credential } from '../../src/services/cloudagent/types.js'
@@ -26,7 +27,7 @@ export async function setupTwoPartyContext(context: TwoPartyContext) {
 }
 
 export const withEstablishedConnection = async (context: TwoPartyContext) => {
-  const invitation = await fetch(`${process.env.CLOUDAGENT_ADMIN_ORIGIN}/v1/oob/create-invitation`, {
+  const invitation = await fetch(`${env.CLOUDAGENT_ADMIN_ORIGIN}/v1/oob/create-invitation`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

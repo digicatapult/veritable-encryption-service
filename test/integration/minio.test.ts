@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { Express } from 'express'
 import { before, describe, it } from 'mocha'
 import request from 'supertest'
+import env from '../../src/env.js'
 import createHttpServer from '../../src/server.js'
 
 describe('Minio Encryption Service Integration', function () {
@@ -28,8 +29,8 @@ describe('Minio Encryption Service Integration', function () {
     it('should allow direct download from Minio URL (anonymous access)', async () => {
       // Verify URL components for anonymous access
       const urlParts = new URL(directMinioUrl)
-      expect(urlParts.hostname).to.equal(process.env.STORAGE_BACKEND_HOST)
-      expect(urlParts.port).to.equal(process.env.STORAGE_BACKEND_PORT)
+      expect(urlParts.hostname).to.equal(env.STORAGE_BACKEND_HOST)
+      expect(urlParts.port).to.equal(env.STORAGE_BACKEND_PORT)
       expect(urlParts.pathname).to.include(`test/direct-access-test.txt`)
 
       // Actually test downloading the file from Minio directly using fetch
