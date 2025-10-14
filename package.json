@@ -65,6 +65,8 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@credo-ts/core": "^0.5.17",
+    "@hyperledger/aries-askar-shared": "^0.2.3",
     "@tsoa/runtime": "^6.6.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
