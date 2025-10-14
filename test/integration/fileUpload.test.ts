@@ -4,7 +4,7 @@ import { before, describe, it } from 'mocha'
 import request from 'supertest'
 import createHttpServer from '../../src/server.js'
 
-describe('Minio Encryption Service Integration', function () {
+describe('File Upload controller tests', function () {
   let app: Express
 
   before(async () => {

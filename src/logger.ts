@@ -2,13 +2,14 @@ import { randomUUID } from 'crypto'
 import { Request as ExRequest, Response as ExResponse } from 'express'
 import { Logger, pino } from 'pino'
 import { pinoHttp } from 'pino-http'
+import env from './env.js'
 
 // Create logger with default level, will be updated in resetContainer
 export const logger: Logger = pino(
   {
     name: 'veritable-encryption-service',
     timestamp: true,
-    level: 'info', // Default level, will be overridden
+    level: env.LOG_LEVEL || 'info',
   },
   process.stdout
 )
