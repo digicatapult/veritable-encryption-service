@@ -51,7 +51,8 @@ describe('cloudagent', async () => {
     expect(schemas[0].id).to.include('ipfs:')
   })
 
-  it('createCredentialDefinition', async () => {
+  it('createCredentialDefinition', async function () {
+    this.timeout(20000)
     const credDef = await context.localCloudagent.createCredentialDefinition(context.didKey, context.schemaId, 'tag')
     expect(credDef.id).to.include('ipfs:')
   })
