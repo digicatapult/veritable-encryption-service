@@ -9,8 +9,8 @@ describe('Encryption', () => {
     const plaintext = Buffer.from('test')
     const cek = encryption.generateCek()
 
-    const { data } = await encryption.encrypt(plaintext, cek)
-    const decrypted = encryption.decrypt(data, cek)
+    const { cipher } = encryption.encryptWithCek(plaintext, cek)
+    const decrypted = encryption.decryptWithCek(cipher, cek)
 
     expect(decrypted).to.deep.equal(plaintext)
   })

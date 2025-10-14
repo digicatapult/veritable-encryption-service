@@ -1,10 +1,11 @@
 import { randomBytes } from 'node:crypto'
 import { aesGcmDecrypt, aesGcmEncrypt } from './aesGcm.js'
 import { EncryptionConfig } from './config.js'
+import { encryptEcdh } from './ecdh.js'
 
 export interface EncryptedResult {
   filename: string
-  data: string
+  cipher: string
 }
 export default class Encryption {
   private readonly config: EncryptionConfig
@@ -21,11 +22,15 @@ export default class Encryption {
     cek.fill(0)
   }
 
-  encrypt(plaintext: Buffer, cek: Buffer) {
+  encryptWithCek(plaintext: Buffer, cek: Buffer) {
     return aesGcmEncrypt(plaintext, cek, this.config)
   }
 
-  decrypt(cipher: string, cek: Buffer) {
+  decryptWithCek(cipher: string, cek: Buffer) {
     return aesGcmDecrypt(cipher, cek, this.config)
+  }
+
+  encryptWithPublicX25519(plaintext: Buffer, publicKey64: string): string {
+    return encryptEcdh(plaintext, publicKey64)
   }
 }

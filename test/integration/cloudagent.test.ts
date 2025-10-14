@@ -1,4 +1,6 @@
+import { KeyType, TypedArrayEncoder, VerificationMethod } from '@credo-ts/core'
 import { expect } from 'chai'
+import type { DIDDocument } from 'did-resolver'
 import { testCleanup } from '../helpers/cleanup.js'
 import {
   setupTwoPartyContext,
@@ -30,6 +32,13 @@ describe('cloudagent', async () => {
     const connections = await context.localCloudagent.getConnections()
     expect(connections).to.have.length(1)
     expect(connections[0].id).to.equal(context.localConnectionId)
+  })
+
+  it('createDid', async () => {
+    const did = await context.localCloudagent.createDid('key', {
+      keyType: KeyType.X25519,
+    })
+    expect(did.id).to.include('did:key:')
   })
 
   it('getDids', async () => {
@@ -86,5 +95,19 @@ describe('cloudagent', async () => {
     const messages = await context.remoteCloudagent.getBasicMessages(context.remoteConnectionId)
     expect(messages).to.be.an('array')
     expect(messages[0].content).to.equal('test message')
+  })
+
+  it('walletDecrypt', async () => {
+    const plaintext = 'test'
+    const did = (await context.localCloudagent.createDid('key', {
+      keyType: KeyType.X25519,
+    })) as DIDDocument
+
+    const keyAgreement = did.keyAgreement?.[0] as VerificationMethod
+    const publicKey64 = TypedArrayEncoder.toBase64(TypedArrayEncoder.fromBase58(keyAgreement.publicKeyBase58!))
+
+    const encrypted = context.localEncryption.encryptWithPublicX25519(Buffer.from(plaintext), publicKey64)
+    const decrypted = await context.localCloudagent.walletDecrypt(encrypted, publicKey64)
+    expect(decrypted).to.equal(plaintext)
   })
 })

@@ -20,10 +20,12 @@ import {
   credentialParser,
   CredentialSchema,
   credentialSchemaParser,
+  didCreateParser,
   DidDocument,
   didListParser,
   parserFn,
   schemaListParser,
+  walletDecryptParser,
 } from './types.js'
 
 @singleton()
@@ -61,6 +63,12 @@ export default class Cloudagent {
 
     return this.getRequest(`/v1/dids?${params}`, this.buildParser(didListParser)).then((dids) =>
       dids.map((did) => did.didDocument)
+    )
+  }
+
+  public async createDid(method: string, options: Record<string, string>): Promise<DidDocument> {
+    return this.postRequest('/v1/dids/create', { method, options }, this.buildParser(didCreateParser)).then(
+      (res) => res.didDocument
     )
   }
 
@@ -149,6 +157,18 @@ export default class Cloudagent {
 
   public async getBasicMessages(connectionId: UUID): Promise<BasicMessage[]> {
     return await this.getRequest(`/v1/basic-messages/${connectionId}`, this.buildParser(basicMessageListParser))
+  }
+
+  /*----------------------------- Wallet ---------------------------------*/
+
+  public async walletDecrypt(jwe: string, recipientPublicKey64: string): Promise<string> {
+    const decryptPayload = {
+      jwe,
+      recipientPublicKey: recipientPublicKey64,
+      enc: 'A256GCM',
+      alg: 'ECDH-ES',
+    }
+    return this.postRequest(`/v1/wallet/decrypt`, decryptPayload, this.buildParser(walletDecryptParser))
   }
 
   /*--------------------------- Shared Methods ---------------------------------*/

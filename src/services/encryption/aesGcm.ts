@@ -32,18 +32,14 @@ const createEnvelopedBuffer = (
   return { envelopedBuffer, filename }
 }
 
-export const aesGcmEncrypt = async (
-  plaintext: Buffer,
-  cek: Buffer,
-  config: EncryptionConfig
-): Promise<EncryptedResult> => {
+export const aesGcmEncrypt = (plaintext: Buffer, cek: Buffer, config: EncryptionConfig): EncryptedResult => {
   const iv = generateIv(config.ivSize)
   const { ciphertext, tag } = encryptBuffer(plaintext, iv, cek)
   const { envelopedBuffer, filename } = createEnvelopedBuffer(ciphertext, { iv, tag }, config)
 
   return {
     filename,
-    data: envelopedBuffer.toString('base64'),
+    cipher: envelopedBuffer.toString('base64'),
   }
 }
 

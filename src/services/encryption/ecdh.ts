@@ -1,9 +1,8 @@
-import { Buffer, JsonEncoder, Key, KeyType, TypedArrayEncoder } from '@credo-ts/core'
-import { Key as AskarKey, EcdhEs, keyAlgFromString, KeyAlgs } from '@hyperledger/aries-askar-shared'
+import { Buffer as CredoBuffer, JsonEncoder, Key, KeyType, TypedArrayEncoder } from '@credo-ts/core'
+import { Key as AskarKey, EcdhEs, keyAlgFromString, KeyAlgs } from '@hyperledger/aries-askar-nodejs'
 
-export function encryptEcdh(publicKey64: string, plaintext: string): string {
+export function encryptEcdh(plaintext: Buffer, publicKey64: string): string {
   const recipientKey = new Key(TypedArrayEncoder.fromBase64(publicKey64), KeyType.X25519)
-  const data = TypedArrayEncoder.fromString(plaintext)
 
   let ephemeralKey: AskarKey | undefined
 
@@ -22,7 +21,7 @@ export function encryptEcdh(publicKey64: string, plaintext: string): string {
 
     // Use Askar's ECDH-ES implementation (same as original)
     const ecdh = new EcdhEs({
-      algId: Uint8Array.from(Buffer.from('A256GCM')),
+      algId: Uint8Array.from(CredoBuffer.from('A256GCM')),
       apu: Uint8Array.from([]),
       apv: Uint8Array.from([]),
     })
@@ -37,9 +36,9 @@ export function encryptEcdh(publicKey64: string, plaintext: string): string {
     const { ciphertext, tag, nonce } = ecdh.encryptDirect({
       encAlg: KeyAlgs.AesA256Gcm,
       ephemeralKey,
-      message: Uint8Array.from(data),
+      message: Uint8Array.from(CredoBuffer.from(plaintext)),
       recipientKey: recipientAskarKey,
-      aad: Uint8Array.from(Buffer.from(encodedHeader)), // AAD as bytes of encoded header
+      aad: Uint8Array.from(CredoBuffer.from(encodedHeader)), // AAD as bytes of encoded header
     })
 
     // Return compact JWE (same format as original)
