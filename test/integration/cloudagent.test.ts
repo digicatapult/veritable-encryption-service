@@ -1,6 +1,7 @@
 import { KeyType, TypedArrayEncoder, VerificationMethod } from '@credo-ts/core'
 import { expect } from 'chai'
 import type { DIDDocument } from 'did-resolver'
+import { encryptEcdh } from '../../src/ecdh.js'
 import { testCleanup } from '../helpers/cleanup.js'
 import {
   setupTwoPartyContext,
@@ -106,7 +107,7 @@ describe('cloudagent', async () => {
     const keyAgreement = did.keyAgreement?.[0] as VerificationMethod
     const publicKey64 = TypedArrayEncoder.toBase64(TypedArrayEncoder.fromBase58(keyAgreement.publicKeyBase58!))
 
-    const encrypted = context.localEncryption.encryptWithPublicX25519(Buffer.from(plaintext), publicKey64)
+    const encrypted = encryptEcdh(Buffer.from(plaintext), publicKey64)
     const decrypted = await context.localCloudagent.walletDecrypt(encrypted, publicKey64)
     expect(decrypted).to.deep.equal(plaintext)
   })

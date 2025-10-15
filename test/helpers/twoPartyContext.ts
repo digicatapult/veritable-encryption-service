@@ -4,8 +4,6 @@ import { Env } from '../../src/env.js'
 import { UUID } from '../../src/models/stringTypes.js'
 import VeritableCloudagent from '../../src/services/cloudagent/index.js'
 import { Connection, Credential } from '../../src/services/cloudagent/types.js'
-import { ENCRYPTION_CONFIGS } from '../../src/services/encryption/config.js'
-import Encryption from '../../src/services/encryption/index.js'
 import { mockEnvBob, mockLogger } from './mock.js'
 import { pollUntil } from './poll.js'
 
@@ -16,7 +14,6 @@ const didKey = 'did:key:z6Mkk7yqnGF3YwTrLpqrW6PGsKci7dNqh1CjnvMbzrMerSeL' // to 
 export type TwoPartyContext = {
   localCloudagent: VeritableCloudagent
   localConnectionId: UUID
-  localEncryption: Encryption
   remoteCloudagent: VeritableCloudagent
   remoteConnectionId: UUID
   didKey: string
@@ -27,7 +24,6 @@ export type TwoPartyContext = {
 
 export async function setupTwoPartyContext(context: TwoPartyContext) {
   context.localCloudagent = container.resolve(VeritableCloudagent)
-  context.localEncryption = new Encryption(ENCRYPTION_CONFIGS.VERI)
   context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
   context.didKey = didKey
 }
