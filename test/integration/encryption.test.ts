@@ -1,6 +1,6 @@
 import { KeyType, TypedArrayEncoder, VerificationMethod } from '@credo-ts/core'
 import { expect } from 'chai'
-import { DIDDocument } from 'did-resolver'
+import type { DIDDocument } from 'did-resolver'
 import { encryptEcdh } from '../../src/ecdh.js'
 import { testCleanup } from '../helpers/cleanup.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/twoPartyContext.js'
