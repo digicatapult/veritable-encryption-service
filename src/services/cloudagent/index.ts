@@ -161,14 +161,15 @@ export default class Cloudagent {
 
   /*----------------------------- Wallet ---------------------------------*/
 
-  public async walletDecrypt(jwe: string, recipientPublicKey64: string): Promise<string> {
+  public async walletDecrypt(jwe: string, recipientPublicKey64: string): Promise<Buffer> {
     const decryptPayload = {
       jwe,
       recipientPublicKey: recipientPublicKey64,
       enc: 'A256GCM',
       alg: 'ECDH-ES',
     }
-    return this.postRequest(`/v1/wallet/decrypt`, decryptPayload, this.buildParser(walletDecryptParser))
+    const result = await this.postRequest(`/v1/wallet/decrypt`, decryptPayload, this.buildParser(walletDecryptParser))
+    return Buffer.from(result, 'base64')
   }
 
   /*--------------------------- Shared Methods ---------------------------------*/

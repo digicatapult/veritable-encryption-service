@@ -98,7 +98,7 @@ describe('cloudagent', async () => {
   })
 
   it('walletDecrypt', async () => {
-    const plaintext = 'test'
+    const plaintext = Buffer.from('test')
     const did = (await context.localCloudagent.createDid('key', {
       keyType: KeyType.X25519,
     })) as DIDDocument
@@ -108,6 +108,6 @@ describe('cloudagent', async () => {
 
     const encrypted = context.localEncryption.encryptWithPublicX25519(Buffer.from(plaintext), publicKey64)
     const decrypted = await context.localCloudagent.walletDecrypt(encrypted, publicKey64)
-    expect(decrypted).to.equal(plaintext)
+    expect(decrypted).to.deep.equal(plaintext)
   })
 })
