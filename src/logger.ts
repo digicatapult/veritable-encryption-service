@@ -2,22 +2,19 @@ import { randomUUID } from 'crypto'
 import { Request as ExRequest, Response as ExResponse } from 'express'
 import { Logger, pino } from 'pino'
 import { pinoHttp } from 'pino-http'
-import { container } from 'tsyringe'
-import { Env } from './env.js'
+import env from './env.js'
 
-const env = container.resolve(Env)
-
+// Create logger with default level, will be updated in resetContainer
 export const logger: Logger = pino(
   {
     name: 'veritable-encryption-service',
     timestamp: true,
-    level: env.get('LOG_LEVEL'),
+    level: env.LOG_LEVEL || 'info',
   },
   process.stdout
 )
 
 export const LoggerToken = Symbol('Logger')
-container.register<Logger>(LoggerToken, { useValue: logger })
 
 export function createRequestLogger(logger: Logger) {
   return pinoHttp({
