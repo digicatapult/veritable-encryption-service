@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.19
-FROM node:lts-alpine AS builder
+FROM node:lts-bookworm AS builder
 
 WORKDIR /veritable-encryption-service
 
@@ -14,11 +14,11 @@ COPY . .
 RUN npm run build
 
 # service
-FROM node:lts-alpine AS service
+FROM node:lts-bookworm AS service
 
 WORKDIR /veritable-encryption-service
 
-RUN apk add --no-cache coreutils curl
+RUN apt-get update && apt-get install -y curl
 RUN npm -g install npm@11.x.x
 
 COPY package*.json ./
