@@ -24,6 +24,7 @@ jobs:
         mkcert veritable-cloudagent-bob localhost &&
         echo "NODE_EXTRA_CA_CERTS=$(mkcert -CAROOT)/rootCA.pem" >> $GITHUB_ENV &&
         npm run tsoa:build
+      pre_test_command: 'npm run db:migrate'
       tests: '["test:integration"]'
   build-docker:
     uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main

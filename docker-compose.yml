@@ -131,7 +131,7 @@ services:
     image: postgres:18.0-alpine
     restart: on-failure
     ports:
-      - 5432:5432
+      - 5433:5432
     volumes:
       - alice-veritable-cloudagent-storage:/var/lib/postgresql
     environment:
@@ -155,7 +155,7 @@ services:
     image: postgres:18.0-alpine
     restart: on-failure
     ports:
-      - 5433:5432
+      - 5434:5432
     volumes:
       - bob-veritable-cloudagent-storage:/var/lib/postgresql
     environment:
@@ -191,10 +191,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
   ##################################################################################
   ## PostgreSQL ####################################################################
   ##################################################################################
-
   postgres:
     container_name: encryption-service-postgres
     image: postgres:18.0-alpine
@@ -206,9 +206,8 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=did-web-server
-    networks:
-      - testnet
+      - POSTGRES_DB=veritable-encryption-service
+
 volumes:
   ipfs:
   alice-veritable-cloudagent-storage:

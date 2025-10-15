@@ -1,15 +1,19 @@
 import knex from 'knex'
 import { container, singleton } from 'tsyringe'
+import { z } from 'zod'
 
-const env = container.resolve(Env)
+import env from '../../env.js'
+import Zod, { IDatabase, Models, TABLE, tablesList, Where } from './types.js'
+import { reduceWhere } from './util.js'
+
 const clientSingleton = knex({
   client: 'pg',
   connection: {
-    host: env.get('DB_HOST'),
-    database: env.get('DB_NAME'),
-    user: env.get('DB_USERNAME'),
-    password: env.get('DB_PASSWORD'),
-    port: env.get('DB_PORT'),
+    host: env.DB_HOST,
+    database: env.DB_NAME,
+    user: env.DB_USERNAME,
+    password: env.DB_PASSWORD,
+    port: env.DB_PORT,
   },
   pool: {
     min: 2,
@@ -21,4 +25,35 @@ const clientSingleton = knex({
 })
 
 @singleton()
-export default class Database {}
+export default class Database {
+  private db: IDatabase
+
+  constructor(private client = clientSingleton) {
+    const models: IDatabase = tablesList.reduce((acc, name) => {
+      return {
+        [name]: () => this.client(name),
+        ...acc,
+      }
+    }, {}) as IDatabase
+    this.db = models
+  }
+
+  insert = async <M extends TABLE>(
+    model: M,
+    record: Models[typeof model]['insert']
+  ): Promise<Models[typeof model]['get'][]> => {
+    return z
+      .array(Zod[model].get)
+      .parse(await this.db[model]().insert(record).returning('*')) as Models[typeof model]['get'][]
+  }
+
+  get = async <M extends TABLE>(model: M, where?: Where<M>, limit?: number): Promise<Models[typeof model]['get'][]> => {
+    let query = this.db[model]()
+    query = reduceWhere(query, where)
+    if (limit !== undefined) query = query.limit(limit)
+    const result = await query
+    return z.array(Zod[model].get).parse(result) as Models[typeof model]['get'][]
+  }
+}
+
+container.register(Database, { useValue: new Database() })

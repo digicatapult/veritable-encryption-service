@@ -59,7 +59,7 @@ export const baseSchema = {
   STORAGE_BACKEND_MODE: envalid.str({ devDefault: 'MINIO', choices: ['S3', 'AZURE', 'MINIO'] }),
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
   DB_HOST: envalid.host({ devDefault: 'localhost' }),
-  DB_NAME: envalid.str({ default: 'encryption-service-postgres' }),
+  DB_NAME: envalid.str({ default: 'veritable-encryption-service' }),
   DB_USERNAME: envalid.str({ devDefault: 'postgres' }),
   DB_PASSWORD: envalid.str({ devDefault: 'postgres' }),
   DB_PORT: envalid.port({ default: 5432 }),

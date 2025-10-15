@@ -8,25 +8,25 @@ An API facilitating encryption and storage for Digital Catapult's [Veritable](ht
 
 Use a `.env` at root of the repository to set values for the environment variables defined in `.env` file.
 
-| variable                              | required |                                      default                                      | description                                                                          |
-| :------------------------------------ | :------: | :-------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------- |
-| PORT                                  |    N     |                                      `3000`                                      | The port for the API to listen on                                                   |
-| LOG_LEVEL                             |    N     |                                      `info`                                      | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`] |
-| CLOUDAGENT_ADMIN_ORIGIN               |    Y     |                            http://localhost:3100                                 | veritable-cloudagent url                                                             |
-| STORAGE_BACKEND_MODE                  |    N     |                                     `MINIO`                                      | Storage backend type. Valid values are [`S3`, `AZURE`, `MINIO`]                     |
-| STORAGE_BACKEND_HOST                  |    N     |                                   `localhost`                                    | Storage backend host                                                                 |
-| STORAGE_BACKEND_PORT                  |    N     |                    `9000` (Minio/S3) or `10000` (Azure)                         | Storage backend port                                                                 |
-| STORAGE_BACKEND_PROTOCOL              |    N     |                                      `http`                                      | Storage backend protocol (`http` or `https`)                                        |
-| STORAGE_BACKEND_BUCKET_NAME           |    N     |                                      `test`                                      | Storage bucket/container name                                                        |
-| STORAGE_BACKEND_ACCESS_KEY_ID         |    N     |                                     `minio`                                      | S3/Minio access key ID (required for S3/MINIO modes)                               |
-| STORAGE_BACKEND_SECRET_ACCESS_KEY     |    N     |                                    `password`                                    | S3/Minio secret access key (required for S3/MINIO modes)                           |
-| STORAGE_BACKEND_S3_REGION             |    N     |                                   `eu-west-2`                                    | S3 region (required for S3 mode)                                                    |
-| STORAGE_BACKEND_ACCOUNT_NAME          |    N     |                                `devstoreaccount1`                                | Azure storage account name (required for AZURE mode)                               |
-| STORAGE_BACKEND_ACCOUNT_SECRET        |    N     | `Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==` | Azure storage account key (required for AZURE mode)                                |
+| variable                          | required |                                          default                                           | description                                                                          |
+| :-------------------------------- | :------: | :----------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------- |
+| PORT                              |    N     |                                           `3000`                                           | The port for the API to listen on                                                    |
+| LOG_LEVEL                         |    N     |                                           `info`                                           | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`] |
+| CLOUDAGENT_ADMIN_ORIGIN           |    Y     |                                   http://localhost:3100                                    | veritable-cloudagent url                                                             |
+| STORAGE_BACKEND_MODE              |    N     |                                          `MINIO`                                           | Storage backend type. Valid values are [`S3`, `AZURE`, `MINIO`]                      |
+| STORAGE_BACKEND_HOST              |    N     |                                        `localhost`                                         | Storage backend host                                                                 |
+| STORAGE_BACKEND_PORT              |    N     |                            `9000` (Minio/S3) or `10000` (Azure)                            | Storage backend port                                                                 |
+| STORAGE_BACKEND_PROTOCOL          |    N     |                                           `http`                                           | Storage backend protocol (`http` or `https`)                                         |
+| STORAGE_BACKEND_BUCKET_NAME       |    N     |                                           `test`                                           | Storage bucket/container name                                                        |
+| STORAGE_BACKEND_ACCESS_KEY_ID     |    N     |                                          `minio`                                           | S3/Minio access key ID (required for S3/MINIO modes)                                 |
+| STORAGE_BACKEND_SECRET_ACCESS_KEY |    N     |                                         `password`                                         | S3/Minio secret access key (required for S3/MINIO modes)                             |
+| STORAGE_BACKEND_S3_REGION         |    N     |                                        `eu-west-2`                                         | S3 region (required for S3 mode)                                                     |
+| STORAGE_BACKEND_ACCOUNT_NAME      |    N     |                                     `devstoreaccount1`                                     | Azure storage account name (required for AZURE mode)                                 |
+| STORAGE_BACKEND_ACCOUNT_SECRET    |    N     | `Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==` | Azure storage account key (required for AZURE mode)                                  |
 
 ## Getting started
 
-### Development with local Minio
+### Development with local dependencies
 
 Start the required services using Docker Compose:
 
@@ -35,20 +35,11 @@ Start the required services using Docker Compose:
 docker compose up -d
 # Install packages
 npm i
+## db migrate
+npm run db:migrate
 # Build
 npm run build
 # Start encryption service in dev mode
-npm run dev
-```
-
-The encryption service will be available at http://localhost:3000
-
-### Development with external storage
-
-```sh
-# Install packages
-npm i
-# start service in dev mode
 npm run dev
 ```
 
@@ -83,6 +74,7 @@ npm run test:unit
 Ensure [certificates](#local-https-certificates) have been generated and `NODE_EXTRA_CA_CERTS` set. Integration tests are executed by calling:
 
 ```sh
+docker compose up -d
 npm run tsoa:build
 npm run test:integration
 ```
