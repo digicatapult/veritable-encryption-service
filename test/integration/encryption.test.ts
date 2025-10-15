@@ -13,7 +13,6 @@ describe('encryption', async () => {
   let ciphertext: string
 
   before(async function () {
-    this.timeout(10000)
     await setupTwoPartyContext(context)
   })
 
