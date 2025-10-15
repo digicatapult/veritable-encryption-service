@@ -18,11 +18,9 @@ const connectionParser = z.object({
 })
 export type Connection = z.infer<typeof connectionParser>
 
-const didDocumentParser = z
-  .object({
-    id: z.string(),
-  })
-  .loose()
+const didDocumentParser = z.looseObject({
+  id: z.string(),
+})
 export type DidDocument = z.infer<typeof didDocumentParser>
 
 export const didCreateParser = z.object({

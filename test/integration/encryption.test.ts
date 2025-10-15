@@ -1,9 +1,13 @@
-import { KeyType, TypedArrayEncoder, VerificationMethod } from '@credo-ts/core'
-import { expect } from 'chai'
-import type { DIDDocument } from 'did-resolver'
+import * as chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import { encryptEcdh } from '../../src/ecdh.js'
+import { InternalError } from '../../src/error.js'
 import { testCleanup } from '../helpers/cleanup.js'
+import { createDid } from '../helpers/createDid.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/twoPartyContext.js'
+
+chai.use(chaiAsPromised)
+const expect = chai.expect
 
 describe('encryption', async () => {
   const context: TwoPartyContext = {} as TwoPartyContext
@@ -21,16 +25,8 @@ describe('encryption', async () => {
     await testCleanup(context.remoteCloudagent)
   })
 
-  it('get recipient public key', async () => {
-    const did = (await context.localCloudagent.createDid('key', {
-      keyType: KeyType.X25519,
-    })) as DIDDocument
-
-    const keyAgreement = did.keyAgreement?.[0] as VerificationMethod
-    recipientPublicKey64 = TypedArrayEncoder.toBase64(TypedArrayEncoder.fromBase58(keyAgreement.publicKeyBase58!))
-  })
-
-  it('encrypt buffer + separate jwe', () => {
+  it('sender - encrypt buffer + separate jwe', async () => {
+    recipientPublicKey64 = await createDid(context.localCloudagent)
     const jwe = encryptEcdh(file, recipientPublicKey64)
     const parts = jwe.split('.')
     header = parts.slice(0, 2).join('.')
@@ -41,5 +37,15 @@ describe('encryption', async () => {
     const jwe = [header, ciphertext].join('.')
     const decrypted = await context.localCloudagent.walletDecrypt(jwe, recipientPublicKey64)
     expect(decrypted).to.deep.equal(file)
+  })
+
+  it('fails with wrong recipient public key', async () => {
+    const wrongPublicKey64 = await createDid(context.localCloudagent)
+
+    const jwe = [header, ciphertext].join('.')
+    await expect(context.localCloudagent.walletDecrypt(jwe, wrongPublicKey64)).to.be.rejectedWith(
+      InternalError,
+      'AEAD decryption error'
+    )
   })
 })

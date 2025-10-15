@@ -235,7 +235,7 @@ export default class Cloudagent {
       if (response.status === 404) {
         throw new NotFoundError(`${method} ${path}`)
       }
-      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
+      throw new InternalError(`Unexpected error calling ${method} ${path}: ${await response.text()}`)
     }
 
     try {
