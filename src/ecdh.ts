@@ -1,6 +1,9 @@
 import { Buffer as CredoBuffer, JsonEncoder, Key, KeyType, TypedArrayEncoder } from '@credo-ts/core'
 import { Key as AskarKey, EcdhEs, keyAlgFromString, KeyAlgs } from '@hyperledger/aries-askar-nodejs'
 
+export const ENC = 'A256GCM'
+export const ALG = 'ECDH-ES'
+
 export function encryptEcdh(plaintext: Buffer, publicKey64: string): string {
   const recipientKey = new Key(TypedArrayEncoder.fromBase64(publicKey64), KeyType.X25519)
 
@@ -10,15 +13,15 @@ export function encryptEcdh(plaintext: Buffer, publicKey64: string): string {
     ephemeralKey = AskarKey.generate(keyAlgFromString(recipientKey.keyType))
 
     const header = {
-      enc: 'A256GCM',
-      alg: 'ECDH-ES',
+      enc: ENC,
+      alg: ALG,
       epk: ephemeralKey.jwkPublic,
     }
 
     const encodedHeader = JsonEncoder.toBase64URL(header)
 
     const ecdh = new EcdhEs({
-      algId: Uint8Array.from(CredoBuffer.from('A256GCM')),
+      algId: Uint8Array.from(CredoBuffer.from(ENC)),
       apu: Uint8Array.from([]),
       apv: Uint8Array.from([]),
     })

@@ -2,6 +2,7 @@ import type { Logger } from 'pino'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
+import { ALG, ENC } from '../../ecdh.js'
 import { type Env, EnvToken } from '../../env.js'
 import { BadRequest, InternalError, NotFoundError } from '../../error.js'
 import { LoggerToken } from '../../logger.js'
@@ -165,8 +166,8 @@ export default class Cloudagent {
     const decryptPayload = {
       jwe,
       recipientPublicKey: recipientPublicKey64,
-      enc: 'A256GCM',
-      alg: 'ECDH-ES',
+      enc: ENC,
+      alg: ALG,
     }
     const result = await this.postRequest(`/v1/wallet/decrypt`, decryptPayload, this.buildParser(walletDecryptParser))
     return Buffer.from(result, 'base64')
