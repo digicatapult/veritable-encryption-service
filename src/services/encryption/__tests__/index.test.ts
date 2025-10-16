@@ -30,6 +30,6 @@ describe('Encryption', () => {
     const encryption = new Encryption(ENCRYPTION_CONFIGS.VERI)
     const cek = encryption.generateCek()
     encryption.destroyCek(cek)
-    expect(cek.every((byte) => byte === 0)).to.be.true
+    expect(cek.every((byte) => byte === 0)).to.equal(true)
   })
 })
