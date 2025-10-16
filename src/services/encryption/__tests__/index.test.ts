@@ -25,4 +25,11 @@ describe('Encryption', () => {
 
     expect(decrypted).to.deep.equal(largeFile)
   })
+
+  it('should destroy CEK', () => {
+    const encryption = new Encryption(ENCRYPTION_CONFIGS.VERI)
+    const cek = encryption.generateCek()
+    encryption.destroyCek(cek)
+    expect(cek.every((byte) => byte === 0)).to.be.true
+  })
 })
