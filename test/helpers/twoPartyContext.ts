@@ -1,6 +1,7 @@
 import { container } from 'tsyringe'
 
 import env from '../../src/env.js'
+import { resetContainer } from '../../src/ioc.js'
 import { UUID } from '../../src/models/stringTypes.js'
 import VeritableCloudagent from '../../src/services/cloudagent/index.js'
 import { Connection, Credential } from '../../src/services/cloudagent/types.js'
@@ -21,6 +22,7 @@ export type TwoPartyContext = {
 }
 
 export async function setupTwoPartyContext(context: TwoPartyContext) {
+  resetContainer()
   context.localCloudagent = container.resolve(VeritableCloudagent)
   context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
   context.didKey = didKey

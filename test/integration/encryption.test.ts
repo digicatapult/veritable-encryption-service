@@ -48,4 +48,11 @@ describe('encryption', async () => {
       'AEAD decryption error'
     )
   })
+
+  it('encrypts 100MB buffer', async function () {
+    this.timeout(10000)
+    const file100MB = Buffer.alloc(100 * 1024 * 1024, 'a')
+    const jwe = encryptEcdh(file100MB, recipientPublicKey64)
+    expect(jwe).to.be.a('string')
+  })
 })

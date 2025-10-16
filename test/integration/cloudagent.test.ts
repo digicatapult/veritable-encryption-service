@@ -1,7 +1,6 @@
 import { KeyType } from '@credo-ts/core'
 import { expect } from 'chai'
 import { encryptEcdh } from '../../src/ecdh.js'
-import { resetContainer } from '../../src/ioc.js'
 import { testCleanup } from '../helpers/cleanup.js'
 import { createDid } from '../helpers/createDid.js'
 import {
@@ -18,7 +17,6 @@ describe('cloudagent', async () => {
 
   before(async function () {
     this.timeout(10000)
-    resetContainer()
     await setupTwoPartyContext(context)
     await withEstablishedConnection(context)
     await withSchema(context)

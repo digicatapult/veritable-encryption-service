@@ -4,7 +4,6 @@ import { Logger, pino } from 'pino'
 import { pinoHttp } from 'pino-http'
 import env from './env.js'
 
-// Create logger with default level, will be updated in resetContainer
 export const logger: Logger = pino(
   {
     name: 'veritable-encryption-service',
