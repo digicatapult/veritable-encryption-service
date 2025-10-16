@@ -6,6 +6,7 @@ import { type Env, EnvToken } from '../../env.js'
 import { BadRequest, InternalError, NotFoundError } from '../../error.js'
 import { LoggerToken } from '../../logger.js'
 import { DID, SchemaId, UUID, Version } from '../../models/stringTypes.js'
+import { ALG, ENC } from '../encryption/ecdh.js'
 import {
   BasicMessage,
   basicMessageListParser,
@@ -20,10 +21,12 @@ import {
   credentialParser,
   CredentialSchema,
   credentialSchemaParser,
+  didCreateParser,
   DidDocument,
   didListParser,
   parserFn,
   schemaListParser,
+  walletDecryptParser,
 } from './types.js'
 
 @singleton()
@@ -61,6 +64,12 @@ export default class Cloudagent {
 
     return this.getRequest(`/v1/dids?${params}`, this.buildParser(didListParser)).then((dids) =>
       dids.map((did) => did.didDocument)
+    )
+  }
+
+  public async createDid(method: string, options: Record<string, string>): Promise<DidDocument> {
+    return this.postRequest('/v1/dids/create', { method, options }, this.buildParser(didCreateParser)).then(
+      (res) => res.didDocument
     )
   }
 
@@ -151,6 +160,19 @@ export default class Cloudagent {
     return await this.getRequest(`/v1/basic-messages/${connectionId}`, this.buildParser(basicMessageListParser))
   }
 
+  /*----------------------------- Wallet ---------------------------------*/
+
+  public async walletDecrypt(jwe: string, recipientPublicKey64: string): Promise<Buffer> {
+    const decryptPayload = {
+      jwe,
+      recipientPublicKey: recipientPublicKey64,
+      enc: ENC,
+      alg: ALG,
+    }
+    const result = await this.postRequest(`/v1/wallet/decrypt`, decryptPayload, this.buildParser(walletDecryptParser))
+    return Buffer.from(result, 'base64')
+  }
+
   /*--------------------------- Shared Methods ---------------------------------*/
 
   private async getRequest<O>(path: string, parse: parserFn<O>): Promise<O> {
@@ -214,7 +236,7 @@ export default class Cloudagent {
       if (response.status === 404) {
         throw new NotFoundError(`${method} ${path}`)
       }
-      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
+      throw new InternalError(`Unexpected error calling ${method} ${path}: ${await response.text()}`)
     }
 
     try {

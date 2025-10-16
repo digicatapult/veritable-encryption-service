@@ -1,18 +1,14 @@
 import { expect } from 'chai'
-import { Express } from 'express'
 import { before, describe, it } from 'mocha'
 import env from '../../src/env.js'
-import createHttpServer from '../../src/server.js'
 import { setupTwoPartyContext, TwoPartyContext } from '../helpers/twoPartyContext.js'
 
 describe('Minio Encryption Service Integration', function () {
-  let app: Express
   const context = {} as TwoPartyContext
   const testContent = 'Direct Minio access test content'
   const filename = 'direct-access-test.txt'
 
   before(async () => {
-    app = await createHttpServer()
     await setupTwoPartyContext(context)
   })
 
