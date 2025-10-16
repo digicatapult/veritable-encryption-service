@@ -1,23 +1,20 @@
 import * as chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import { encryptEcdh } from '../../src/ecdh.js'
 import { InternalError } from '../../src/error.js'
 import { testCleanup } from '../helpers/cleanup.js'
-import { createDid } from '../helpers/createDid.js'
-import { setupTwoPartyContext, TwoPartyContext } from '../helpers/twoPartyContext.js'
+import { createLocalDid, encryptPlaintext, setupTwoPartyContext, TwoPartyContext } from '../helpers/twoPartyContext.js'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
 
 describe('encryption', async () => {
   const context: TwoPartyContext = {} as TwoPartyContext
-  const file = Buffer.from('some file')
-  let recipientPublicKey64: string
-  let header: string
-  let ciphertext: string
+  const plaintext = Buffer.from('test')
+  let recipientPublicKey: string
 
   before(async function () {
     await setupTwoPartyContext(context)
+    recipientPublicKey = await createLocalDid(context)
   })
 
   after(async () => {
@@ -25,34 +22,59 @@ describe('encryption', async () => {
     await testCleanup(context.remoteCloudagent)
   })
 
-  it('sender - encrypt buffer + separate jwe', async () => {
-    recipientPublicKey64 = await createDid(context.localCloudagent)
-    const jwe = encryptEcdh(file, recipientPublicKey64)
-    const parts = jwe.split('.')
-    header = parts.slice(0, 2).join('.')
-    ciphertext = parts.slice(2).join('.')
+  it('success - encrypt/decrypt cek + cipher', async () => {
+    const { ciphertext, encryptedCek } = await encryptPlaintext(context, plaintext, recipientPublicKey)
+    const decryptedCek = await context.localCloudagent.walletDecrypt(encryptedCek, recipientPublicKey)
+    const decrypted = context.localEncryption.decryptWithCek(ciphertext, decryptedCek)
+    expect(decrypted).to.deep.equal(plaintext)
   })
 
-  it('receiver - reconstruct jwe and decrypt', async () => {
-    const jwe = [header, ciphertext].join('.')
-    const decrypted = await context.localCloudagent.walletDecrypt(jwe, recipientPublicKey64)
-    expect(decrypted).to.deep.equal(file)
+  it('success - large file encrypt/decrypt cek + cipher', async () => {
+    const largeFile = Buffer.from('a'.repeat(100 * 1024 * 1024)) // 100MB
+
+    const { ciphertext, encryptedCek } = await encryptPlaintext(context, largeFile, recipientPublicKey)
+    const decryptedCek = await context.localCloudagent.walletDecrypt(encryptedCek, recipientPublicKey)
+    const decrypted = context.localEncryption.decryptWithCek(ciphertext, decryptedCek)
+    expect(decrypted).to.deep.equal(largeFile)
   })
 
-  it('fails with wrong recipient public key', async () => {
-    const wrongPublicKey64 = await createDid(context.localCloudagent)
+  it('success - multiple encryptions produce different ciphertexts', async () => {
+    const result1 = await encryptPlaintext(context, plaintext, recipientPublicKey)
+    const result2 = await encryptPlaintext(context, plaintext, recipientPublicKey)
 
-    const jwe = [header, ciphertext].join('.')
-    await expect(context.localCloudagent.walletDecrypt(jwe, wrongPublicKey64)).to.be.rejectedWith(
+    expect(result1.ciphertext).to.not.deep.equal(result2.ciphertext)
+    expect(result1.encryptedCek).to.not.deep.equal(result2.encryptedCek)
+  })
+
+  it('error - cek decryption fails with wrong recipient public key', async () => {
+    const wrongPublicKey = await createLocalDid(context)
+    const { encryptedCek } = await encryptPlaintext(context, plaintext, recipientPublicKey)
+
+    await expect(context.localCloudagent.walletDecrypt(encryptedCek, wrongPublicKey)).to.be.rejectedWith(
       InternalError,
       'AEAD decryption error'
     )
   })
 
-  it('encrypts 100MB buffer', async function () {
-    this.timeout(10000)
-    const file100MB = Buffer.alloc(100 * 1024 * 1024, 'a')
-    const jwe = encryptEcdh(file100MB, recipientPublicKey64)
-    expect(jwe).to.be.a('string')
+  it('error - cipher decryption fails with wrong cek', async () => {
+    const { ciphertext } = await encryptPlaintext(context, plaintext, recipientPublicKey)
+    const wrongCek = context.localEncryption.generateCek()
+
+    expect(() => context.localEncryption.decryptWithCek(ciphertext, wrongCek)).to.throw(
+      Error,
+      'Unsupported state or unable to authenticate data'
+    )
+  })
+
+  it('error - cipher decryption fails with tampered ciphertext', async () => {
+    const { ciphertext, encryptedCek } = await encryptPlaintext(context, plaintext, recipientPublicKey)
+    const decryptedCek = await context.localCloudagent.walletDecrypt(encryptedCek, recipientPublicKey)
+
+    const tamperedCiphertext = ciphertext.slice(0, -1) + 'X'
+
+    expect(() => context.localEncryption.decryptWithCek(tamperedCiphertext, decryptedCek)).to.throw(
+      Error,
+      'Unsupported state or unable to authenticate data'
+    )
   })
 })

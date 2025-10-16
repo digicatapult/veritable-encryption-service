@@ -1,9 +1,9 @@
 import { KeyType } from '@credo-ts/core'
 import { expect } from 'chai'
-import { encryptEcdh } from '../../src/ecdh.js'
+import { encryptEcdh } from '../../src/services/encryption/ecdh.js'
 import { testCleanup } from '../helpers/cleanup.js'
-import { createDid } from '../helpers/createDid.js'
 import {
+  createLocalDid,
   setupTwoPartyContext,
   TwoPartyContext,
   withCred,
@@ -101,7 +101,7 @@ describe('cloudagent', async () => {
 
   it('walletDecrypt', async () => {
     const plaintext = Buffer.from('test')
-    const publicKey64 = await createDid(context.localCloudagent)
+    const publicKey64 = await createLocalDid(context)
     const encrypted = encryptEcdh(Buffer.from(plaintext), publicKey64)
     const decrypted = await context.localCloudagent.walletDecrypt(encrypted, publicKey64)
     expect(decrypted).to.deep.equal(plaintext)

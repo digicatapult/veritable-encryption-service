@@ -2,11 +2,11 @@ import type { Logger } from 'pino'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
-import { ALG, ENC } from '../../ecdh.js'
 import { type Env, EnvToken } from '../../env.js'
 import { BadRequest, InternalError, NotFoundError } from '../../error.js'
 import { LoggerToken } from '../../logger.js'
 import { DID, SchemaId, UUID, Version } from '../../models/stringTypes.js'
+import { ALG, ENC } from '../encryption/ecdh.js'
 import {
   BasicMessage,
   basicMessageListParser,
