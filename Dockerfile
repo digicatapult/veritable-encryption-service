@@ -22,11 +22,11 @@ COPY package*.json ./
 
 RUN npm ci --production
 
-FROM node:lts-alpine AS service
+FROM node:lts-bookworm-slim AS service
 
 WORKDIR /veritable-encryption-service
 
-RUN apk add --no-cache curl
+RUN apt-get update && apt-get install -y curl
 
 COPY package*.json ./
 COPY --from=modules /veritable-encryption-service/node_modules ./node_modules
