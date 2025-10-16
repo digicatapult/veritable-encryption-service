@@ -1,8 +1,7 @@
 import { expect } from 'chai'
-import { resetContainer } from '../../src/ioc.js'
-import { testCleanup } from '../helpers/cleanup.js'
 import {
   setupTwoPartyContext,
+  testCleanup,
   TwoPartyContext,
   withCred,
   withCredDef,
@@ -15,7 +14,6 @@ describe('cloudagent', async () => {
 
   before(async function () {
     this.timeout(10000)
-    resetContainer()
     await setupTwoPartyContext(context)
     await withEstablishedConnection(context)
     await withSchema(context)
@@ -24,8 +22,7 @@ describe('cloudagent', async () => {
   })
 
   after(async () => {
-    await testCleanup(context.localCloudagent)
-    await testCleanup(context.remoteCloudagent)
+    await testCleanup(context)
   })
 
   it('getConnections', async () => {

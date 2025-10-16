@@ -1,7 +1,7 @@
 import knex from 'knex'
-import { container, singleton } from 'tsyringe'
 import { z } from 'zod'
 
+import { container, singleton } from 'tsyringe'
 import env from '../../env.js'
 import Zod, { IDatabase, Models, TABLE, tablesList, Where } from './types.js'
 import { reduceWhere } from './util.js'
@@ -53,6 +53,12 @@ export default class Database {
     if (limit !== undefined) query = query.limit(limit)
     const result = await query
     return z.array(Zod[model].get).parse(result) as Models[typeof model]['get'][]
+  }
+
+  delete = async <M extends TABLE>(model: M, where: Where<M>): Promise<void> => {
+    return this.db[model]()
+      .where(where || {})
+      .delete()
   }
 }
 

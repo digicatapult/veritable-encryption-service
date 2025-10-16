@@ -1,9 +1,13 @@
 import { container } from 'tsyringe'
 
 import env from '../../src/env.js'
+import { resetContainer } from '../../src/ioc.js'
+import Database from '../../src/lib/db/index.js'
 import { UUID } from '../../src/models/stringTypes.js'
 import VeritableCloudagent from '../../src/services/cloudagent/index.js'
 import { Connection, Credential } from '../../src/services/cloudagent/types.js'
+import StorageClass from '../../src/storageClass/index.js'
+import { agentCleanup, dbCleanup } from './cleanup.js'
 import { mockEnvBob, mockLogger } from './mock.js'
 import { pollUntil } from './poll.js'
 
@@ -11,6 +15,8 @@ const didKey = 'did:key:z6Mkk7yqnGF3YwTrLpqrW6PGsKci7dNqh1CjnvMbzrMerSeL' // to 
 
 export type TwoPartyContext = {
   localCloudagent: VeritableCloudagent
+  localDatabase: Database
+  localStorageClass: StorageClass
   localConnectionId: UUID
   remoteCloudagent: VeritableCloudagent
   remoteConnectionId: UUID
@@ -21,7 +27,10 @@ export type TwoPartyContext = {
 }
 
 export async function setupTwoPartyContext(context: TwoPartyContext) {
+  resetContainer()
   context.localCloudagent = container.resolve(VeritableCloudagent)
+  context.localDatabase = container.resolve(Database)
+  context.localStorageClass = container.resolve(StorageClass)
   context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
   context.didKey = didKey
 }
@@ -98,4 +107,10 @@ export const withCred = async (context: TwoPartyContext) => {
       }),
     (credentials: Credential[]) => credentials.length > 0
   )
+}
+
+export async function testCleanup(context: TwoPartyContext) {
+  await agentCleanup(context.localCloudagent)
+  await agentCleanup(context.remoteCloudagent)
+  await dbCleanup(context.localDatabase)
 }

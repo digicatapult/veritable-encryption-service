@@ -8,7 +8,6 @@ import StorageClass, { StorageToken } from '../../storageClass/index.js'
 export interface FileUploadResponse {
   url: string
 }
-
 @Route('files')
 export class FilesController extends Controller {
   private storageService: StorageClass
@@ -41,11 +40,11 @@ export class FilesController extends Controller {
 
     const result = await this.storageService.addFile({
       buffer: file.buffer,
-      targetPath: file.originalname,
+      targetPath: fileHash,
     })
 
-    this.db.insert('file', {
-      uri: result.url,
+    await this.db.insert('file', {
+      uri: fileHash,
       plaintext_hash: fileHash,
     })
 
