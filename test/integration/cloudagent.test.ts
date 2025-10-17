@@ -47,6 +47,16 @@ describe('cloudagent', async () => {
     expect(dids[0].id).to.include('did:peer:')
   })
 
+  it('resolveDid', async () => {
+    const did = await context.localCloudagent.createDid('key', {
+      keyType: KeyType.X25519,
+    })
+    const resolvedDid = await context.localCloudagent.resolveDid(did.id)
+    console.log(resolvedDid)
+    expect(resolvedDid.id).to.equal(did.id)
+    expect(resolvedDid.keyAgreement).to.be.an('array')
+  })
+
   it('createSchema', async () => {
     const schema = await context.localCloudagent.createSchema(context.didKey, 'Test Schema', '1.0.0', ['test attr'])
     expect(schema.id).to.include('ipfs:')

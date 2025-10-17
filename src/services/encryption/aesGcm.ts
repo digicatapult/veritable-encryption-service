@@ -44,11 +44,14 @@ export const aesGcmEncrypt = (plaintext: Buffer, cek: Buffer, config: Encryption
 
   return {
     filename,
-    ciphertext: envelopedBuffer.toString('base64'),
+    cipherPayload: envelopedBuffer.toString('base64'),
   }
 }
 
-const parseEnvelopedBuffer = (data: string, config: EncryptionConfig): { ciphertext: Buffer; metadata: Metadata } => {
+const parseEnvelopedBuffer = (
+  data: string,
+  config: EncryptionConfig
+): { cipherPayload: Buffer; metadata: Metadata } => {
   const envelopedBuffer = Buffer.from(data, 'base64')
   let offset = 0
 
@@ -64,10 +67,10 @@ const parseEnvelopedBuffer = (data: string, config: EncryptionConfig): { ciphert
   const tag = envelopedBuffer.subarray(offset, offset + TAG_SIZE)
   offset += TAG_SIZE
 
-  const ciphertext = envelopedBuffer.subarray(offset)
+  const cipherPayload = envelopedBuffer.subarray(offset)
 
   return {
-    ciphertext,
+    cipherPayload,
     metadata: { iv, tag },
   }
 }
@@ -80,8 +83,8 @@ const decryptBuffer = (ciphertext: Buffer, cek: Buffer, iv: Buffer, tag: Buffer,
 }
 
 export const aesGcmDecrypt = (cipher: string, cek: Buffer, config: EncryptionConfig): Buffer => {
-  const { ciphertext, metadata } = parseEnvelopedBuffer(cipher, config)
-  const plaintext = decryptBuffer(ciphertext, cek, metadata.iv, metadata.tag, config.algorithm)
+  const { cipherPayload, metadata } = parseEnvelopedBuffer(cipher, config)
+  const plaintext = decryptBuffer(cipherPayload, cek, metadata.iv, metadata.tag, config.algorithm)
 
   return plaintext
 }

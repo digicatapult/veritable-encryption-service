@@ -18,8 +18,19 @@ const connectionParser = z.object({
 })
 export type Connection = z.infer<typeof connectionParser>
 
+const verificationMethodParser = z.object({
+  id: z.string(),
+  type: z.string(),
+  controller: z.string(),
+  publicKeyBase58: z.string().optional(),
+  publicKeyBase64: z.string().optional(),
+  publicKeyJwk: z.object({ x: z.string(), crv: z.string() }).optional(),
+})
+export type VerificationMethod = z.infer<typeof verificationMethodParser>
+
 const didDocumentParser = z.looseObject({
   id: z.string(),
+  keyAgreement: z.array(verificationMethodParser).optional(),
 })
 export type DidDocument = z.infer<typeof didDocumentParser>
 
