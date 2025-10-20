@@ -14,6 +14,9 @@ describe('File Upload controller tests', function () {
   let recipientDid: string
   let recipientPublicKey: string
 
+  const testFileContent = Buffer.from('some file')
+  const fileHash = createHash('sha256').update(testFileContent).digest('hex')
+
   before(async () => {
     await setupTwoPartyContext(context)
     app = await createHttpServer()
@@ -28,11 +31,8 @@ describe('File Upload controller tests', function () {
     await testCleanup(context)
   })
 
-  describe('File Upload (Encryption Service)', function () {
+  describe('POST /files', function () {
     it('should upload encrypted file successfully, file returned from Minio is decrypted correctly', async () => {
-      const testFileContent = Buffer.from('This is a test file content for encryption')
-      const fileHash = createHash('sha256').update(testFileContent).digest('hex')
-
       const {
         body: { url, key },
       } = await request(app)

@@ -31,7 +31,14 @@ export class FilesController extends Controller {
 
   /**
    * @summary Upload and encrypt a file to storage
-   * @description Uploads a file to Minio storage. The file will be available for direct download from Minio using the returned URL.
+   * @description Uploads a file to configured storage backend (Minio/S3/Azure).
+   * File is encrypted using AES-256-GCM with a randomly generated Content Encryption Key (CEK).
+   * CEK is ECDH-ES encrypted using with the first X25519 public key found in recipient DID `keyAgreement`.
+   * Encrypted file is stored with anonymous read access.
+   * Encrypted CEK is returned for transmission to the recipient via DIDComm.
+   * @param file The file to encrypt and upload
+   * @param recipientDid The DID of the recipient who will decrypt the file
+   * @returns Object containing the storage URL for the encrypted file and the encrypted CEK
    */
   @SuccessResponse(201, 'File uploaded successfully')
   @Post('/')
@@ -40,11 +47,10 @@ export class FilesController extends Controller {
     @UploadedFile() file: Express.Multer.File,
     @FormField() recipientDid: string
   ): Promise<FileUploadResponse> {
-    req.log.trace('File upload request received')
+    req.log.info(`File upload request received for recipient: ${recipientDid}`)
 
     if (!file) {
-      this.setStatus(400)
-      throw new Error('No file provided')
+      throw new BadRequest('No file provided')
     }
 
     const recipientDidDoc = await this.cloudagent.resolveDid(recipientDid)
