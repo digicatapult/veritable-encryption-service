@@ -4,8 +4,9 @@ import { EncryptionConfig } from './config.js'
 
 export interface EncryptedResult {
   filename: string
-  ciphertext: string
+  envelopedCiphertext: string
 }
+
 export default class Encryption {
   private readonly config: EncryptionConfig
 
@@ -25,7 +26,7 @@ export default class Encryption {
     return aesGcmEncrypt(plaintext, cek, this.config)
   }
 
-  decryptWithCek(cipher: string, cek: Buffer) {
-    return aesGcmDecrypt(cipher, cek, this.config)
+  decryptWithCek(envelopedCiphertext: string, cek: Buffer) {
+    return aesGcmDecrypt(envelopedCiphertext, cek)
   }
 }

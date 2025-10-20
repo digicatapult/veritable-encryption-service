@@ -76,6 +76,7 @@
     "@tweedegolf/sab-adapter-minio": "^1.0.12",
     "@tweedegolf/storage-abstraction": "^2.2.1",
     "@types/multer": "^2.0.0",
+    "cbor2": "^2.0.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "envalid": "^8.1.0",

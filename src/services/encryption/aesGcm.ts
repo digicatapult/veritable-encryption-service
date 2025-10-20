@@ -1,12 +1,18 @@
+import { decode, encode } from 'cbor2'
 import { CipherGCMTypes, createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto'
 import { EncryptionConfig } from './config.js'
 import { EncryptedResult } from './index.js'
 
-const TAG_SIZE = 16 // AES-GCM tag size in bytes
-
 interface Metadata {
   iv: Buffer
   tag: Buffer
+}
+
+export interface EncryptedPayload {
+  algorithm: CipherGCMTypes
+  ciphertext: string
+  iv: string
+  tag: string
 }
 
 const generateIv = (size: number): Buffer => {
@@ -27,12 +33,18 @@ const encryptBuffer = (
   return { ciphertext, tag }
 }
 
-const createEnvelopedBuffer = (
+const createEnvelope = (
   ciphertext: Buffer,
   metadata: Metadata,
-  magicHeader: Buffer
+  algorithm: CipherGCMTypes
 ): { envelopedBuffer: Buffer; filename: string } => {
-  const envelopedBuffer = Buffer.concat([magicHeader, metadata.iv, metadata.tag, ciphertext])
+  const envelope: EncryptedPayload = {
+    iv: metadata.iv.toString('hex'),
+    tag: metadata.tag.toString('hex'),
+    ciphertext: ciphertext.toString('hex'),
+    algorithm,
+  }
+  const envelopedBuffer = Buffer.from(encode(envelope))
   const filename = createHash('sha256').update(envelopedBuffer).digest('hex')
   return { envelopedBuffer, filename }
 }
@@ -40,35 +52,25 @@ const createEnvelopedBuffer = (
 export const aesGcmEncrypt = (plaintext: Buffer, cek: Buffer, config: EncryptionConfig): EncryptedResult => {
   const iv = generateIv(config.ivSize)
   const { ciphertext, tag } = encryptBuffer(plaintext, iv, cek, config.algorithm)
-  const { envelopedBuffer, filename } = createEnvelopedBuffer(ciphertext, { iv, tag }, config.magicHeader)
+  const { envelopedBuffer, filename } = createEnvelope(ciphertext, { iv, tag }, config.algorithm)
 
   return {
     filename,
-    ciphertext: envelopedBuffer.toString('base64'),
+    envelopedCiphertext: envelopedBuffer.toString('base64'),
   }
 }
 
-const parseEnvelopedBuffer = (data: string, config: EncryptionConfig): { ciphertext: Buffer; metadata: Metadata } => {
-  const envelopedBuffer = Buffer.from(data, 'base64')
-  let offset = 0
-
-  const magic = envelopedBuffer.subarray(offset, offset + config.magicHeader.length)
-  if (!magic.equals(config.magicHeader)) {
-    throw new Error('Invalid magic header')
-  }
-  offset += config.magicHeader.length
-
-  const iv = envelopedBuffer.subarray(offset, offset + config.ivSize)
-  offset += config.ivSize
-
-  const tag = envelopedBuffer.subarray(offset, offset + TAG_SIZE)
-  offset += TAG_SIZE
-
-  const ciphertext = envelopedBuffer.subarray(offset)
+const parseEnvelope = (data: string): { ciphertext: Buffer; algorithm: CipherGCMTypes; metadata: Metadata } => {
+  const envelopeBuffer = Buffer.from(data, 'base64')
+  const envelope = decode(envelopeBuffer) as EncryptedPayload
 
   return {
-    ciphertext,
-    metadata: { iv, tag },
+    ciphertext: Buffer.from(envelope.ciphertext, 'hex'),
+    algorithm: envelope.algorithm,
+    metadata: {
+      iv: Buffer.from(envelope.iv, 'hex'),
+      tag: Buffer.from(envelope.tag, 'hex'),
+    },
   }
 }
 
@@ -79,9 +81,7 @@ const decryptBuffer = (ciphertext: Buffer, cek: Buffer, iv: Buffer, tag: Buffer,
   return Buffer.concat([decipher.update(ciphertext), decipher.final()])
 }
 
-export const aesGcmDecrypt = (cipher: string, cek: Buffer, config: EncryptionConfig): Buffer => {
-  const { ciphertext, metadata } = parseEnvelopedBuffer(cipher, config)
-  const plaintext = decryptBuffer(ciphertext, cek, metadata.iv, metadata.tag, config.algorithm)
-
-  return plaintext
+export const aesGcmDecrypt = (envelopedCiphertext: string, cek: Buffer): Buffer => {
+  const { ciphertext, metadata, algorithm } = parseEnvelope(envelopedCiphertext)
+  return decryptBuffer(ciphertext, cek, metadata.iv, metadata.tag, algorithm)
 }

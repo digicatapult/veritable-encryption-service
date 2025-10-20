@@ -120,9 +120,8 @@ export const createLocalDid = async (context: TwoPartyContext) => {
 
 export const encryptPlaintext = async (context: TwoPartyContext, plaintext: Buffer, recipientPublicKey64: string) => {
   const cek = context.localEncryption.generateCek()
-  const encryptionResult = context.localEncryption.encryptWithCek(plaintext, cek)
-  const ciphertext = encryptionResult.ciphertext
+  const { envelopedCiphertext } = context.localEncryption.encryptWithCek(plaintext, cek)
   const encryptedCek = encryptEcdh(cek, recipientPublicKey64)
   context.localEncryption.destroyCek(cek)
-  return { ciphertext, encryptedCek }
+  return { envelopedCiphertext, encryptedCek }
 }
