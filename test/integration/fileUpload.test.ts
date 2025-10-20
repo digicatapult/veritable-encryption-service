@@ -2,10 +2,12 @@ import { KeyType } from '@credo-ts/core'
 import { expect } from 'chai'
 import { createHash } from 'crypto'
 import { Express } from 'express'
-import { before, describe, it } from 'mocha'
+import { afterEach, before, describe, it } from 'mocha'
+import * as sinon from 'sinon'
 import request from 'supertest'
 import createHttpServer from '../../src/server.js'
 import { findPublicKeyBase64 } from '../../src/services/cloudagent/did.js'
+import { DidDocument } from '../../src/services/cloudagent/types.js'
 import { setupTwoPartyContext, testCleanup, TwoPartyContext } from '../helpers/twoPartyContext.js'
 
 describe('File Upload controller tests', function () {
@@ -13,7 +15,6 @@ describe('File Upload controller tests', function () {
   const context = {} as TwoPartyContext
   let recipientDid: string
   let recipientPublicKey: string
-
   const testFileContent = Buffer.from('some file')
   const fileHash = createHash('sha256').update(testFileContent).digest('hex')
 
@@ -25,6 +26,10 @@ describe('File Upload controller tests', function () {
     })
     recipientDid = did.id
     recipientPublicKey = findPublicKeyBase64(did)!
+  })
+
+  afterEach(() => {
+    sinon.restore()
   })
 
   after(async () => {
@@ -56,6 +61,27 @@ describe('File Upload controller tests', function () {
       )
 
       expect(decryptedContent).to.deep.equal(testFileContent)
+    })
+
+    it('should upload successfully using auto-generated DID on cloudagent (publickeyjwk keyAgreement)', async () => {
+      await request(app)
+        .post('/files')
+        .attach('file', testFileContent, 'test-file.txt')
+        .field('recipientDid', 'did:web:veritable-cloudagent-alice%3A8443')
+        .expect(201)
+    })
+
+    it('should 400 if recipient DID is missing a public key', async () => {
+      sinon.stub(context.localCloudagent, 'resolveDid').resolves({} as DidDocument)
+
+      await request(app)
+        .post('/files')
+        .attach('file', testFileContent, 'test-file.txt')
+        .field('recipientDid', 'someDid')
+        .expect(400)
+        .expect((res) => {
+          expect(res.body).contain('No valid public key found')
+        })
     })
   })
 })

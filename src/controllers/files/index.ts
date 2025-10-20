@@ -57,7 +57,7 @@ export class FilesController extends Controller {
 
     const recipientPublicKey64 = findPublicKeyBase64(recipientDidDoc)
     if (!recipientPublicKey64) {
-      throw new BadRequest(`No valid public key found for DID ${recipientDid}`)
+      throw new BadRequest(`No valid public key found for DID '${recipientDid}'`)
     }
 
     const { envelopedCiphertext, encryptedCek, filename } = this.encryption.encryptPlaintext(

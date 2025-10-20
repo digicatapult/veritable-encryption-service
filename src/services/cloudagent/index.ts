@@ -74,7 +74,9 @@ export default class Cloudagent {
   }
 
   public async resolveDid(did: string): Promise<DidDocument> {
-    return this.getRequest(`/v1/dids/${did}`, this.buildParser(didCreateParser)).then((did) => did.didDocument)
+    return this.getRequest(`/v1/dids/${encodeURIComponent(did)}`, this.buildParser(didCreateParser)).then(
+      (did) => did.didDocument
+    )
   }
 
   /*----------------------- Schemas ---------------------------------*/
