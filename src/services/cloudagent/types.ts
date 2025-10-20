@@ -18,12 +18,12 @@ const connectionParser = z.object({
 })
 export type Connection = z.infer<typeof connectionParser>
 
-const didDocumentParser = z.object({
+const didDocumentParser = z.looseObject({
   id: z.string(),
 })
 export type DidDocument = z.infer<typeof didDocumentParser>
 
-const didCreateParser = z.object({
+export const didCreateParser = z.object({
   didDocument: didDocumentParser,
 })
 export const didListParser = z.array(didCreateParser)
@@ -88,6 +88,8 @@ const basicMessageParser = z.object({
   content: z.string(),
   role: z.string(),
 })
+
+export const walletDecryptParser = z.string()
 
 export const connectionListParser = z.array(connectionParser)
 export const credentialListParser = z.array(credentialParser)

@@ -1,7 +1,9 @@
+import { KeyType } from '@credo-ts/core'
 import { expect } from 'chai'
-import { resetContainer } from '../../src/ioc.js'
+import { encryptEcdh } from '../../src/services/encryption/ecdh.js'
 import { testCleanup } from '../helpers/cleanup.js'
 import {
+  createLocalDid,
   setupTwoPartyContext,
   TwoPartyContext,
   withCred,
@@ -15,7 +17,6 @@ describe('cloudagent', async () => {
 
   before(async function () {
     this.timeout(10000)
-    resetContainer()
     await setupTwoPartyContext(context)
     await withEstablishedConnection(context)
     await withSchema(context)
@@ -32,6 +33,13 @@ describe('cloudagent', async () => {
     const connections = await context.localCloudagent.getConnections()
     expect(connections).to.have.length(1)
     expect(connections[0].id).to.equal(context.localConnectionId)
+  })
+
+  it('createDid', async () => {
+    const did = await context.localCloudagent.createDid('key', {
+      keyType: KeyType.X25519,
+    })
+    expect(did.id).to.include('did:key:')
   })
 
   it('getDids', async () => {
@@ -89,5 +97,13 @@ describe('cloudagent', async () => {
     const messages = await context.remoteCloudagent.getBasicMessages(context.remoteConnectionId)
     expect(messages).to.be.an('array')
     expect(messages[0].content).to.equal('test message')
+  })
+
+  it('walletDecrypt', async () => {
+    const plaintext = Buffer.from('test')
+    const publicKey64 = await createLocalDid(context)
+    const encrypted = encryptEcdh(Buffer.from(plaintext), publicKey64)
+    const decrypted = await context.localCloudagent.walletDecrypt(encrypted, publicKey64)
+    expect(decrypted).to.deep.equal(plaintext)
   })
 })

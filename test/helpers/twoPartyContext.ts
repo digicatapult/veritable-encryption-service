@@ -1,9 +1,15 @@
 import { container } from 'tsyringe'
 
+import { KeyType, TypedArrayEncoder } from '@credo-ts/core'
+import { DIDDocument, VerificationMethod } from 'did-resolver'
 import env from '../../src/env.js'
+import { resetContainer } from '../../src/ioc.js'
 import { UUID } from '../../src/models/stringTypes.js'
 import VeritableCloudagent from '../../src/services/cloudagent/index.js'
 import { Connection, Credential } from '../../src/services/cloudagent/types.js'
+import { ENCRYPTION_CONFIGS } from '../../src/services/encryption/config.js'
+import { encryptEcdh } from '../../src/services/encryption/ecdh.js'
+import Encryption from '../../src/services/encryption/index.js'
 import { mockEnvBob, mockLogger } from './mock.js'
 import { pollUntil } from './poll.js'
 
@@ -12,6 +18,7 @@ const didKey = 'did:key:z6Mkk7yqnGF3YwTrLpqrW6PGsKci7dNqh1CjnvMbzrMerSeL' // to 
 export type TwoPartyContext = {
   localCloudagent: VeritableCloudagent
   localConnectionId: UUID
+  localEncryption: Encryption
   remoteCloudagent: VeritableCloudagent
   remoteConnectionId: UUID
   didKey: string
@@ -21,7 +28,9 @@ export type TwoPartyContext = {
 }
 
 export async function setupTwoPartyContext(context: TwoPartyContext) {
+  resetContainer()
   context.localCloudagent = container.resolve(VeritableCloudagent)
+  context.localEncryption = new Encryption(ENCRYPTION_CONFIGS.VERI)
   context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
   context.didKey = didKey
 }
@@ -98,4 +107,21 @@ export const withCred = async (context: TwoPartyContext) => {
       }),
     (credentials: Credential[]) => credentials.length > 0
   )
+}
+
+// returns base64-encoded X25519 public key
+export const createLocalDid = async (context: TwoPartyContext) => {
+  const did = (await context.localCloudagent.createDid('key', {
+    keyType: KeyType.X25519,
+  })) as DIDDocument
+  const keyAgreement = did.keyAgreement?.[0] as VerificationMethod
+  return TypedArrayEncoder.toBase64(TypedArrayEncoder.fromBase58(keyAgreement.publicKeyBase58!))
+}
+
+export const encryptPlaintext = async (context: TwoPartyContext, plaintext: Buffer, recipientPublicKey64: string) => {
+  const cek = context.localEncryption.generateCek()
+  const { envelopedCiphertext } = context.localEncryption.encryptWithCek(plaintext, cek)
+  const encryptedCek = encryptEcdh(cek, recipientPublicKey64)
+  context.localEncryption.destroyCek(cek)
+  return { envelopedCiphertext, encryptedCek }
 }
