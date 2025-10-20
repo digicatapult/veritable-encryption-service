@@ -5,8 +5,9 @@ import { encryptEcdh } from './ecdh.js'
 
 export interface EncryptedResult {
   filename: string
-  cipherPayload: string
+  envelopedCiphertext: string
 }
+
 export default class Encryption {
   private readonly config: EncryptionConfig
 
@@ -24,17 +25,17 @@ export default class Encryption {
 
   encryptPlaintext(plaintext: Buffer, recipientPublicKey64: string) {
     const cek = this.generateCek()
-    const { cipherPayload, filename } = this.encryptWithCek(plaintext, cek)
+    const { envelopedCiphertext, filename } = this.encryptWithCek(plaintext, cek)
     const encryptedCek = encryptEcdh(cek, recipientPublicKey64)
     this.destroyCek(cek)
-    return { cipherPayload, encryptedCek, filename }
+    return { envelopedCiphertext, encryptedCek, filename }
   }
 
   encryptWithCek(plaintext: Buffer, cek: Buffer) {
     return aesGcmEncrypt(plaintext, cek, this.config)
   }
 
-  decryptWithCek(cipherPayload: string, cek: Buffer) {
-    return aesGcmDecrypt(cipherPayload, cek, this.config)
+  decryptWithCek(envelopedCiphertext: string, cek: Buffer) {
+    return aesGcmDecrypt(envelopedCiphertext, cek)
   }
 }

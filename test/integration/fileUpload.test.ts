@@ -42,7 +42,6 @@ describe('File Upload controller tests', function () {
         .expect(201)
 
       const [file] = await context.localDatabase.get('file', { plaintext_hash: fileHash })
-      expect(file).to.exist
       expect(file.plaintext_hash).to.equal(fileHash)
 
       const encryptedFileResponse = await fetch(url)

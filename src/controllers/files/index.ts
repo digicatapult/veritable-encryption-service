@@ -54,14 +54,13 @@ export class FilesController extends Controller {
       throw new BadRequest(`No valid public key found for DID ${recipientDid}`)
     }
 
-    const { encryptedCek, cipherPayload, filename } = this.encryption.encryptPlaintext(
+    const { envelopedCiphertext, encryptedCek, filename } = this.encryption.encryptPlaintext(
       file.buffer,
       recipientPublicKey64
     )
 
-    console.log(recipientPublicKey64)
     const result = await this.storageService.addFile({
-      buffer: Buffer.from(cipherPayload, 'base64'),
+      buffer: Buffer.from(envelopedCiphertext, 'base64'),
       targetPath: filename,
     })
 

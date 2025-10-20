@@ -9,8 +9,8 @@ describe('Encryption', () => {
     const plaintext = Buffer.from('test')
     const cek = encryption.generateCek()
 
-    const { cipherPayload } = encryption.encryptWithCek(plaintext, cek)
-    const decrypted = encryption.decryptWithCek(cipherPayload, cek)
+    const { envelopedCiphertext } = encryption.encryptWithCek(plaintext, cek)
+    const decrypted = encryption.decryptWithCek(envelopedCiphertext, cek)
 
     expect(decrypted).to.deep.equal(plaintext)
   })
@@ -20,8 +20,8 @@ describe('Encryption', () => {
     const largeFile = Buffer.from('a'.repeat(100 * 1024 * 1024)) // 100MB
     const cek = encryption.generateCek()
 
-    const { cipherPayload } = encryption.encryptWithCek(largeFile, cek)
-    const decrypted = encryption.decryptWithCek(cipherPayload, cek)
+    const { envelopedCiphertext } = encryption.encryptWithCek(largeFile, cek)
+    const decrypted = encryption.decryptWithCek(envelopedCiphertext, cek)
 
     expect(decrypted).to.deep.equal(largeFile)
   })

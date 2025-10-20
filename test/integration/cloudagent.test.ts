@@ -52,7 +52,6 @@ describe('cloudagent', async () => {
       keyType: KeyType.X25519,
     })
     const resolvedDid = await context.localCloudagent.resolveDid(did.id)
-    console.log(resolvedDid)
     expect(resolvedDid.id).to.equal(did.id)
     expect(resolvedDid.keyAgreement).to.be.an('array')
   })

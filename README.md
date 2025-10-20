@@ -78,3 +78,66 @@ docker compose up -d
 npm run tsoa:build
 npm run test:integration
 ```
+
+## Encryption
+
+The service implements multiple types of encryption.
+
+### AES-256-GCM (Symmetric Encryption)
+
+**Default Configuration**:
+
+```typescript
+  VERI: {
+    cekSize: 32,
+    ivSize: 12,
+    algorithm: 'aes-256-gcm',
+  }
+```
+
+- Key: Random Content Encryption Key (CEK)
+- Returns: CBOR envelope + SHA-256 hash of envelope
+
+### ECDH-ES (Asymmetric Key Exchange)
+
+ECDH-ES (Elliptic Curve Diffie-Hellman Ephemeral Static). Ephemeral key generation to encrypt using recipient's public key.
+
+**Default Configuration**:
+
+- Key: X25519
+- Encryption: A256GCM
+- Returns: JWE (JSON Web Encryption) compact serialization
+
+### Example Usage Flow
+
+**Encryption**:
+
+```typescript
+const encryption = new Encryption(ENCRYPTION_CONFIGS.VERI)
+
+// Encrypt file content with CEK
+const cek = encryption.generateCek()
+const { filename, envelopedCiphertext } = encryption.encryptWithCek(plaintextBuffer, cek)
+
+// Encrypt CEK with recipient's public key
+const encryptedCek = encryptEcdh(cek, 'base64-x25519-public-key')
+
+// Destroy CEK from memory
+encryption.destroyCek(cek)
+```
+
+`envelopedCiphertext` and `encryptedCek` are sent separately. For example, `envelopedCiphertext` goes to external storage (e.g Minio/S3) and `encryptedCek` is sent to recipient via secure channel (DIDComm)
+
+**Decryption**:
+
+```typescript
+// Decrypt CEK from DIDCOMM message using private key in recipient cloudagent wallet
+const decryptedCek = await cloudagent.walletDecrypt(encryptedCek, recipientPublicKey)
+
+// Download encrypted file from external storage
+const encryptedFile = await fetch(fileUrl)
+const envelopedCiphertext = await encryptedFile.text()
+
+// Decrypt file content using decrypted CEK
+const decryptedContent = encryption.decryptWithCek(envelopedCiphertext, decryptedCek)
+```
