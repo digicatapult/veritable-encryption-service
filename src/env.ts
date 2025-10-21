@@ -18,6 +18,7 @@ type BaseEnv = {
   DB_USERNAME: string
   DB_PASSWORD: string
   DB_PORT: number
+  UPLOAD_LIMIT_MB: number
 }
 // Specific types for each storage mode
 type S3Env = BaseEnv & {
@@ -63,6 +64,7 @@ export const baseSchema = {
   DB_USERNAME: envalid.str({ devDefault: 'postgres' }),
   DB_PASSWORD: envalid.str({ devDefault: 'postgres' }),
   DB_PORT: envalid.port({ default: 5432 }),
+  UPLOAD_LIMIT_MB: envalid.num({ default: 100 }),
 }
 
 export const s3Schema = {

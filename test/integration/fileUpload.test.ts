@@ -5,6 +5,7 @@ import { Express } from 'express'
 import { afterEach, before, describe, it } from 'mocha'
 import * as sinon from 'sinon'
 import request from 'supertest'
+import env from '../../src/env.js'
 import createHttpServer from '../../src/server.js'
 import { findPublicKeyBase64 } from '../../src/services/cloudagent/did.js'
 import { DidDocument } from '../../src/services/cloudagent/types.js'
@@ -81,6 +82,19 @@ describe('File Upload controller tests', function () {
         .expect(400)
         .expect((res) => {
           expect(res.body).contain('No valid public key found')
+        })
+    })
+
+    it('should 400 if upload over limit', async () => {
+      const tooLarge = Buffer.from('a'.repeat(env.UPLOAD_LIMIT_MB * 1024 * 1024 + 1))
+
+      await request(app)
+        .post('/files')
+        .attach('file', tooLarge, 'test-file.txt')
+        .field('recipientDid', recipientDid)
+        .expect(400)
+        .expect((res) => {
+          expect(res.body).contain('File is too large')
         })
     })
 
