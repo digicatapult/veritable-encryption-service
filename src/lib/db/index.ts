@@ -1,7 +1,7 @@
 import knex from 'knex'
 import { z } from 'zod'
 
-import { container, singleton } from 'tsyringe'
+import { singleton } from 'tsyringe'
 import env from '../../env.js'
 import Zod, { IDatabase, Models, TABLE, tablesList, Where } from './types.js'
 import { reduceWhere } from './util.js'
@@ -56,10 +56,6 @@ export default class Database {
   }
 
   delete = async <M extends TABLE>(model: M, where: Where<M>): Promise<void> => {
-    return this.db[model]()
-      .where(where || {})
-      .delete()
+    return reduceWhere(this.db[model](), where).delete()
   }
 }
-
-container.register(Database, { useValue: new Database() })

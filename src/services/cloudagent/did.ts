@@ -20,4 +20,5 @@ const getPublicKeyFromVM = (verificationMethod: VerificationMethod): string | un
   } else if (verificationMethod.publicKeyJwk && verificationMethod.publicKeyJwk.crv === 'X25519') {
     return verificationMethod.publicKeyJwk.x
   }
+  return undefined
 }
