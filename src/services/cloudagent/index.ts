@@ -1,4 +1,5 @@
 import type { Logger } from 'pino'
+import { ValidateError } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
@@ -203,6 +204,10 @@ export default class Cloudagent {
       if (response.status === 404) {
         throw new NotFoundError(`${method} ${path}`)
       }
+      if (response.status === 422) {
+        const error = await response.json()
+        throw new ValidateError(error.details || {}, error.message || 'Validation failed')
+      }
       throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
     try {
@@ -241,6 +246,10 @@ export default class Cloudagent {
       }
       if (response.status === 404) {
         throw new NotFoundError(`${method} ${path}`)
+      }
+      if (response.status === 422) {
+        const error = await response.json()
+        throw new ValidateError(error.details || {}, error.message || 'Validation failed')
       }
       throw new InternalError(`Unexpected error calling ${method} ${path}: ${await response.text()}`)
     }

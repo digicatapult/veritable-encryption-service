@@ -71,7 +71,7 @@ describe('File Upload controller tests', function () {
         .expect(201)
     })
 
-    it('should 400 if recipient DID is missing a public key', async () => {
+    it('should 400 if recipient DID doc is missing a public key', async () => {
       sinon.stub(context.localCloudagent, 'resolveDid').resolves({} as DidDocument)
 
       await request(app)
@@ -82,6 +82,22 @@ describe('File Upload controller tests', function () {
         .expect((res) => {
           expect(res.body).contain('No valid public key found')
         })
+    })
+
+    it('should 404 if recipient DID is unresolvable', async () => {
+      await request(app)
+        .post('/files')
+        .attach('file', testFileContent, 'test-file.txt')
+        .field('recipientDid', 'did:bla')
+        .expect(404)
+    })
+
+    it('should 422 if recipient DID is unprocessable', async () => {
+      await request(app)
+        .post('/files')
+        .attach('file', testFileContent, 'test-file.txt')
+        .field('recipientDid', 'notADid')
+        .expect(422)
     })
   })
 })
