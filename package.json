@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -76,7 +76,7 @@
     "@hyperledger/aries-askar-nodejs": "^0.2.3",
     "@tsoa/runtime": "^6.6.0",
     "@tweedegolf/sab-adapter-amazon-s3": "1.0.20",
-    "@tweedegolf/sab-adapter-azure-blob": "^1.0.9",
+    "@tweedegolf/sab-adapter-azure-blob": "^3.0.0",
     "@tweedegolf/sab-adapter-minio": "^1.0.12",
     "@tweedegolf/storage-abstraction": "^2.2.1",
     "@types/multer": "^2.0.0",
