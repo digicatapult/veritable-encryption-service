@@ -1,6 +1,8 @@
 import { Request as ExRequest, Response as ExResponse, NextFunction } from 'express'
+import multer from 'multer'
 import { ValidateError } from 'tsoa'
 
+import env from './env.js'
 import { logger } from './logger.js'
 
 export class HttpResponse extends Error {
@@ -38,6 +40,9 @@ export const errorHandler = function errorHandler(
   res: ExResponse,
   next: NextFunction
 ): void {
+  if (err instanceof multer.MulterError && (err as multer.MulterError).code === 'LIMIT_FILE_SIZE') {
+    err = new BadRequest(`File is too large. Must be less than ${env.UPLOAD_LIMIT_MB}MB`)
+  }
   if (err instanceof ValidateError) {
     logger.warn(`Handled Validation Error for ${req.path}: %s`, JSON.stringify(err.fields))
 

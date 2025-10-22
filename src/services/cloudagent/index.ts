@@ -1,4 +1,5 @@
 import type { Logger } from 'pino'
+import { ValidateError } from 'tsoa'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
@@ -70,6 +71,12 @@ export default class Cloudagent {
   public async createDid(method: string, options: Record<string, string>): Promise<DidDocument> {
     return this.postRequest('/v1/dids/create', { method, options }, this.buildParser(didCreateParser)).then(
       (res) => res.didDocument
+    )
+  }
+
+  public async resolveDid(did: string): Promise<DidDocument> {
+    return this.getRequest(`/v1/dids/${encodeURIComponent(did)}`, this.buildParser(didCreateParser)).then(
+      (did) => did.didDocument
     )
   }
 
@@ -197,6 +204,10 @@ export default class Cloudagent {
       if (response.status === 404) {
         throw new NotFoundError(`${method} ${path}`)
       }
+      if (response.status === 422) {
+        const error = await response.json()
+        throw new ValidateError(error.details || {}, error.message || 'Validation failed')
+      }
       throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
     }
     try {
@@ -235,6 +246,10 @@ export default class Cloudagent {
       }
       if (response.status === 404) {
         throw new NotFoundError(`${method} ${path}`)
+      }
+      if (response.status === 422) {
+        const error = await response.json()
+        throw new ValidateError(error.details || {}, error.message || 'Validation failed')
       }
       throw new InternalError(`Unexpected error calling ${method} ${path}: ${await response.text()}`)
     }

@@ -13,6 +13,12 @@ Use a `.env` at root of the repository to set values for the environment variabl
 | PORT                              |    N     |                                           `3000`                                           | The port for the API to listen on                                                    |
 | LOG_LEVEL                         |    N     |                                           `info`                                           | Logging level. Valid values are [`trace`, `debug`, `info`, `warn`, `error`, `fatal`] |
 | CLOUDAGENT_ADMIN_ORIGIN           |    Y     |                                   http://localhost:3100                                    | veritable-cloudagent url                                                             |
+| DB_HOST                           |    N     |                                        `localhost`                                         | Database host                                                                        |
+| DB_NAME                           |    N     |                               `veritable-encryption-service`                               | Database name                                                                        |
+| DB_USERNAME                       |    N     |                                         `postgres`                                         | Database username                                                                    |
+| DB_PASSWORD                       |    N     |                                         `postgres`                                         | Database password                                                                    |
+| DB_PORT                           |    N     |                                           `5432`                                           | Database port                                                                        |
+| UPLOAD_LIMIT_MB                   |    n     |                                           `100`                                            | Upload limit for files in MB                                                         |
 | STORAGE_BACKEND_MODE              |    N     |                                          `MINIO`                                           | Storage backend type. Valid values are [`S3`, `AZURE`, `MINIO`]                      |
 | STORAGE_BACKEND_HOST              |    N     |                                        `localhost`                                         | Storage backend host                                                                 |
 | STORAGE_BACKEND_PORT              |    N     |                            `9000` (Minio/S3) or `10000` (Azure)                            | Storage backend port                                                                 |
@@ -26,7 +32,7 @@ Use a `.env` at root of the repository to set values for the environment variabl
 
 ## Getting started
 
-### Development with local Minio
+### Development with local dependencies
 
 Start the required services using Docker Compose:
 
@@ -35,20 +41,11 @@ Start the required services using Docker Compose:
 docker compose up -d
 # Install packages
 npm i
+## db migrate
+npm run db:migrate
 # Build
 npm run build
 # Start encryption service in dev mode
-npm run dev
-```
-
-The encryption service will be available at http://localhost:3000
-
-### Development with external storage
-
-```sh
-# Install packages
-npm i
-# start service in dev mode
 npm run dev
 ```
 
@@ -83,9 +80,14 @@ npm run test:unit
 Ensure [certificates](#local-https-certificates) have been generated and `NODE_EXTRA_CA_CERTS` set. Integration tests are executed by calling:
 
 ```sh
+docker compose up -d
 npm run tsoa:build
 npm run test:integration
 ```
+
+## Full demo
+
+This [E2E success test](test/integration/fileUpload.test.ts) shows how to upload a file to be encrypted for a recipient DID and stored in minio. The recipient downloads and decrypts the file.
 
 ## Encryption
 

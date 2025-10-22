@@ -1,10 +1,10 @@
 import { KeyType } from '@credo-ts/core'
 import { expect } from 'chai'
 import { encryptEcdh } from '../../src/services/encryption/ecdh.js'
-import { testCleanup } from '../helpers/cleanup.js'
 import {
   createLocalDid,
   setupTwoPartyContext,
+  testCleanup,
   TwoPartyContext,
   withCred,
   withCredDef,
@@ -25,8 +25,7 @@ describe('cloudagent', async () => {
   })
 
   after(async () => {
-    await testCleanup(context.localCloudagent)
-    await testCleanup(context.remoteCloudagent)
+    await testCleanup(context)
   })
 
   it('getConnections', async () => {
@@ -46,6 +45,15 @@ describe('cloudagent', async () => {
     const dids = await context.localCloudagent.getDids({ method: 'peer' })
     expect(dids).to.be.an('array')
     expect(dids[0].id).to.include('did:peer:')
+  })
+
+  it('resolveDid', async () => {
+    const did = await context.localCloudagent.createDid('key', {
+      keyType: KeyType.X25519,
+    })
+    const resolvedDid = await context.localCloudagent.resolveDid(did.id)
+    expect(resolvedDid.id).to.equal(did.id)
+    expect(resolvedDid.keyAgreement).to.be.an('array')
   })
 
   it('createSchema', async () => {

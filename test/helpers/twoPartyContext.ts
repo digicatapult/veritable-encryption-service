@@ -1,15 +1,17 @@
 import { container } from 'tsyringe'
 
-import { KeyType, TypedArrayEncoder } from '@credo-ts/core'
-import { DIDDocument, VerificationMethod } from 'did-resolver'
+import { KeyType } from '@credo-ts/core'
 import env from '../../src/env.js'
 import { resetContainer } from '../../src/ioc.js'
+import Database from '../../src/lib/db/index.js'
 import { UUID } from '../../src/models/stringTypes.js'
+import { findPublicKeyBase64 } from '../../src/services/cloudagent/did.js'
 import VeritableCloudagent from '../../src/services/cloudagent/index.js'
 import { Connection, Credential } from '../../src/services/cloudagent/types.js'
 import { ENCRYPTION_CONFIGS } from '../../src/services/encryption/config.js'
-import { encryptEcdh } from '../../src/services/encryption/ecdh.js'
 import Encryption from '../../src/services/encryption/index.js'
+import StorageClass from '../../src/storageClass/index.js'
+import { agentCleanup, dbCleanup } from './cleanup.js'
 import { mockEnvBob, mockLogger } from './mock.js'
 import { pollUntil } from './poll.js'
 
@@ -17,6 +19,8 @@ const didKey = 'did:key:z6Mkk7yqnGF3YwTrLpqrW6PGsKci7dNqh1CjnvMbzrMerSeL' // to 
 
 export type TwoPartyContext = {
   localCloudagent: VeritableCloudagent
+  localDatabase: Database
+  localStorageClass: StorageClass
   localConnectionId: UUID
   localEncryption: Encryption
   remoteCloudagent: VeritableCloudagent
@@ -25,11 +29,14 @@ export type TwoPartyContext = {
   schemaId: string
   credDefId: string
   credId: string
+  didPeer: string
 }
 
 export async function setupTwoPartyContext(context: TwoPartyContext) {
   resetContainer()
   context.localCloudagent = container.resolve(VeritableCloudagent)
+  context.localDatabase = container.resolve(Database)
+  context.localStorageClass = container.resolve(StorageClass)
   context.localEncryption = new Encryption(ENCRYPTION_CONFIGS.VERI)
   context.remoteCloudagent = new VeritableCloudagent(mockEnvBob, mockLogger)
   context.didKey = didKey
@@ -109,19 +116,17 @@ export const withCred = async (context: TwoPartyContext) => {
   )
 }
 
-// returns base64-encoded X25519 public key
-export const createLocalDid = async (context: TwoPartyContext) => {
-  const did = (await context.localCloudagent.createDid('key', {
-    keyType: KeyType.X25519,
-  })) as DIDDocument
-  const keyAgreement = did.keyAgreement?.[0] as VerificationMethod
-  return TypedArrayEncoder.toBase64(TypedArrayEncoder.fromBase58(keyAgreement.publicKeyBase58!))
+export async function testCleanup(context: TwoPartyContext) {
+  await agentCleanup(context.localCloudagent)
+  await agentCleanup(context.remoteCloudagent)
+  await dbCleanup(context.localDatabase)
 }
 
-export const encryptPlaintext = async (context: TwoPartyContext, plaintext: Buffer, recipientPublicKey64: string) => {
-  const cek = context.localEncryption.generateCek()
-  const { envelopedCiphertext } = context.localEncryption.encryptWithCek(plaintext, cek)
-  const encryptedCek = encryptEcdh(cek, recipientPublicKey64)
-  context.localEncryption.destroyCek(cek)
-  return { envelopedCiphertext, encryptedCek }
+export const createLocalDid = async (context: TwoPartyContext) => {
+  const did = await context.localCloudagent.createDid('key', {
+    keyType: KeyType.X25519,
+  })
+  const publicKey64 = findPublicKeyBase64(did)
+  if (!publicKey64) throw new Error('Failed to find public key for created DID')
+  return publicKey64
 }

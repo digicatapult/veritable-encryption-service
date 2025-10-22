@@ -4,12 +4,10 @@ import { container } from 'tsyringe'
 
 import { Logger } from 'pino'
 import { Env, EnvToken } from './env.js'
-import { resetContainer } from './ioc.js'
 import { LoggerToken } from './logger.js'
 import Server from './server.js'
 import StorageClass, { StorageToken } from './storageClass/index.js'
 ;(async () => {
-  resetContainer()
   const logger = container.resolve<Logger>(LoggerToken)
   const env = container.resolve<Env>(EnvToken)
   const storageService = container.resolve<StorageClass>(StorageToken)

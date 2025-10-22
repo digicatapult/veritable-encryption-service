@@ -12,4 +12,5 @@ ignores: [
   '@tweedegolf/sab-adapter-minio',
   '@types/multer',
   'multer',
+  'pg',
 ]

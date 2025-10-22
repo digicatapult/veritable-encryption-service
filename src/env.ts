@@ -13,6 +13,12 @@ type BaseEnv = {
   LOG_LEVEL: string
   STORAGE_BACKEND_MODE: 'S3' | 'AZURE' | 'MINIO'
   CLOUDAGENT_ADMIN_ORIGIN: string
+  DB_HOST: string
+  DB_NAME: string
+  DB_USERNAME: string
+  DB_PASSWORD: string
+  DB_PORT: number
+  UPLOAD_LIMIT_MB: number
 }
 // Specific types for each storage mode
 type S3Env = BaseEnv & {
@@ -53,6 +59,12 @@ export const baseSchema = {
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
   STORAGE_BACKEND_MODE: envalid.str({ devDefault: 'MINIO', choices: ['S3', 'AZURE', 'MINIO'] }),
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
+  DB_HOST: envalid.host({ devDefault: 'localhost' }),
+  DB_NAME: envalid.str({ default: 'veritable-encryption-service' }),
+  DB_USERNAME: envalid.str({ devDefault: 'postgres' }),
+  DB_PASSWORD: envalid.str({ devDefault: 'postgres' }),
+  DB_PORT: envalid.port({ default: 5432 }),
+  UPLOAD_LIMIT_MB: envalid.num({ default: 100 }),
 }
 
 export const s3Schema = {

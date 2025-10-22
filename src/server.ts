@@ -2,8 +2,10 @@ import cors from 'cors'
 import express, { Express, type Request as ExRequest, type Response as ExResponse } from 'express'
 import { serve, setup, SwaggerUiOptions } from 'swagger-ui-express'
 
+import multer from 'multer'
 import { Logger } from 'pino'
 import { container } from 'tsyringe'
+import env from './env.js'
 import { errorHandler } from './error.js'
 import { createRequestLogger, LoggerToken } from './logger.js'
 import { RegisterRoutes } from './routes/routes.js'
@@ -32,7 +34,12 @@ export default async (): Promise<Express> => {
   })
   app.use('/swagger', serve, setup(swagger, options))
 
-  RegisterRoutes(app)
+  const multerOptions = multer({
+    limits: {
+      fileSize: env.UPLOAD_LIMIT_MB * 1024 * 1024,
+    },
+  })
+  RegisterRoutes(app, { multer: multerOptions })
 
   app.use(errorHandler)
 
