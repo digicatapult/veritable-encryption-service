@@ -1,4 +1,4 @@
-import { Storage, StorageAdapterConfig, Provider } from '@tweedegolf/storage-abstraction'
+import { Provider, Storage, StorageAdapterConfig } from '@tweedegolf/storage-abstraction'
 import { type Logger } from 'pino'
 import { inject, injectable } from 'tsyringe'
 import { AzureEnv, EnvToken, MinioEnv, S3Env, type Env } from '../env.js'
