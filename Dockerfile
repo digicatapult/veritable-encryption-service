@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1.19
-FROM node:24-bookworm AS builder
+FROM node:lts-bookworm AS builder
 
 WORKDIR /veritable-encryption-service
+
+RUN npm install -g npm@11.x.x
 
 COPY package*.json ./
 COPY tsconfig.json ./
@@ -10,15 +12,17 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:24-bookworm AS modules
+FROM node:lts-bookworm AS modules
 
 WORKDIR /veritable-encryption-service
+
+RUN npm -g install npm@11.x.x
 
 COPY package*.json ./
 
 RUN npm ci --production
 
-FROM node:24-bookworm-slim AS service
+FROM node:lts-bookworm-slim AS service
 
 WORKDIR /veritable-encryption-service
 
