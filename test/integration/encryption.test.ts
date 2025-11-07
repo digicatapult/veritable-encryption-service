@@ -95,4 +95,4 @@ describe('encryption', async () => {
       'Unsupported state or unable to authenticate data'
     )
   })
-});
+})
