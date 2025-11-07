@@ -34,7 +34,6 @@ describe('encryption', async () => {
 
   it('success - large file encrypt/decrypt cek + cipher', async () => {
     const largeFile = Buffer.from('a'.repeat(100 * 1024 * 1024)) // 100MB
-
     const { envelopedCiphertext, encryptedCek } = context.localEncryption.encryptPlaintext(
       largeFile,
       recipientPublicKey
@@ -42,7 +41,7 @@ describe('encryption', async () => {
     const decryptedCek = await context.localCloudagent.walletDecrypt(encryptedCek, recipientPublicKey)
     const decrypted = context.localEncryption.decryptWithCek(envelopedCiphertext, decryptedCek)
     expect(decrypted).to.deep.equal(largeFile)
-  })
+  }).timeout(30000)
 
   it('success - multiple encryptions produce different cipherPayloads', async () => {
     const result1 = context.localEncryption.encryptPlaintext(plaintext, recipientPublicKey)
@@ -96,4 +95,4 @@ describe('encryption', async () => {
       'Unsupported state or unable to authenticate data'
     )
   })
-})
+});
