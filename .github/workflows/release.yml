@@ -7,13 +7,7 @@ jobs:
     uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@main
     with:
       matrix_commands: '["lint", "depcheck", "check"]'
-  tests-unit:
-    uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
-    with:
-      docker_compose_file: ''
-      npm_build_command: 'npm run tsoa:build'
-      tests: '["test:unit"]'
-  tests-integration:
+  tests:
     uses: digicatapult/shared-workflows/.github/workflows/tests-npm.yml@main
     with:
       npm_build_command: >
@@ -23,11 +17,10 @@ jobs:
         mkcert veritable-cloudagent-alice localhost &&
         mkcert veritable-cloudagent-bob localhost &&
         echo "NODE_EXTRA_CA_CERTS=$(mkcert -CAROOT)/rootCA.pem" >> $GITHUB_ENV &&
-        npm run tsoa:build
-      pre_test_command: 'npm run db:migrate'
-      tests: '["test:integration"]'
+      pre_test_command: 'npm run tsoa:build && npm run db:migrate'
+      tests: '["test:integration", "test:unit"]'
   build-docker:
-    needs: [tests-unit, tests-integration, static-checks-npm]
+    needs: [tests, static-checks-npm]
     uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
     with:
       push_dockerhub: true
