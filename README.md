@@ -51,6 +51,18 @@ npm run dev
 
 View OpenAPI documentation for all routes with Swagger at http://localhost:3000/swagger/
 
+## Node.js 24 Compatibility
+
+This project uses Node.js 24 LTS. Due to compatibility requirements with native modules, the following npm overrides are configured in `package.json`:
+
+- **`ref-napi: npm:@2060.io/ref-napi`**: Uses a patched version of ref-napi that supports Node.js 24. The standard ref-napi package has compatibility issues with Node 24's native module ABI.
+
+- **`node-addon-api: 8.5.0`**: Forces version 8.5.0 of node-addon-api, which is compatible with Node.js 24. The @2060.io/ref-napi package requires node-addon-api ^3.0.0, but Node 24 requires >=5.x. This override ensures the correct version is used across all dependencies.
+
+**Important**: Both overrides must be present together for the native modules to compile successfully with Node.js 24. Removing either override will cause build failures with node-gyp.
+
+These overrides enable the `@hyperledger/aries-askar-nodejs` dependency (used for encryption operations) to work with Node.js 24.
+
 ## Local HTTPS Certificates
 
 The `veritable-cloudagent` dependency includes a `did:web` server. Since `did:web` always [resolves to HTTPS](https://w3c-ccg.github.io/did-method-web/#read-resolve/), the server runs as HTTPS in dev mode. A local trusted certificate and key must be generated before it can be accessed in your browser.
