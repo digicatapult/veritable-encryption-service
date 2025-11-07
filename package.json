@@ -98,7 +98,6 @@
     "zod": "^4.1.12"
   },
   "overrides": {
-    "ref-napi": "npm:@2060.io/ref-napi",
-    "node-addon-api": "8.5.0"
+    "ref-napi": "npm:@2060.io/ref-napi"
   }
 }
