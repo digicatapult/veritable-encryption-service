@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.0.19",
+  "version": "0.1.0",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -25,8 +25,8 @@
     "url": "git+https://github.com/digicatapult/veritable-encryption-service.git"
   },
   "engines": {
-    "node": "^22.x.x",
-    "npm": "^10.x.x"
+    "node": "24.x",
+    "npm": "11.x"
   },
   "keywords": [
     "OpenAPI"
@@ -72,7 +72,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@credo-ts/core": "^0.5.17",
+    "@credo-ts/core": "^0.5.18",
     "@hyperledger/aries-askar-nodejs": "^0.2.3",
     "@tsoa/runtime": "^6.6.0",
     "@tweedegolf/sab-adapter-minio": "^3.0.0",
@@ -96,5 +96,9 @@
     "tsoa": "^6.6.0",
     "tsyringe": "^4.10.0",
     "zod": "^4.1.12"
+  },
+  "overrides": {
+    "ref-napi": "npm:@2060.io/ref-napi",
+    "node-addon-api": "8.5.0"
   }
 }
