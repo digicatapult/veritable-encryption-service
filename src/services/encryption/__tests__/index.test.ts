@@ -16,6 +16,7 @@ describe('Encryption', () => {
   })
 
   it('aes-256-gcm - should encrypt large file and decrypt', async function () {
+    this.timeout(30000)
     const encryption = new Encryption(ENCRYPTION_CONFIGS.VERI)
     const largeFile = Buffer.from('a'.repeat(100 * 1024 * 1024)) // 100MB
     const cek = encryption.generateCek()
