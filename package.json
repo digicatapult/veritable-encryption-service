@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -48,7 +48,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "@types/mocha": "^10.0.10",
-    "@types/sinon": "^17.0.4",
+    "@types/sinon": "^20.0.0",
     "@types/supertest": "^6.0.3",
     "@types/swagger-ui-express": "^4.1.8",
     "@typescript-eslint/eslint-plugin": "^8.46.4",
