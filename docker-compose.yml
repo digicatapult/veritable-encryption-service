@@ -18,7 +18,7 @@ services:
   ##################################################################################
 
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.15.23
+    image: digicatapult/veritable-cloudagent:v0.16.4
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -67,7 +67,7 @@ services:
 
   veritable-cloudagent-bob:
     container_name: veritable-cloudagent-bob
-    image: digicatapult/veritable-cloudagent:v0.15.23
+    image: digicatapult/veritable-cloudagent:v0.16.4
     restart: always
     depends_on:
       ipfs:
@@ -128,7 +128,7 @@ services:
   ##################################################################################
   alice-postgres:
     container_name: alice-postgres
-    image: postgres:18.0-alpine
+    image: postgres:18.1-alpine
     restart: on-failure
     ports:
       - 5433:5432
@@ -152,7 +152,7 @@ services:
   ##################################################################################
   bob-postgres:
     container_name: bob-postgres
-    image: postgres:18.0-alpine
+    image: postgres:18.1-alpine
     restart: on-failure
     ports:
       - 5434:5432
@@ -197,7 +197,7 @@ services:
   ##################################################################################
   postgres:
     container_name: encryption-service-postgres
-    image: postgres:18.0-alpine
+    image: postgres:18.1-alpine
     restart: on-failure
     ports:
       - 5432:5432
