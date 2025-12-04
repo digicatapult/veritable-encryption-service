@@ -1,5 +1,5 @@
 import type { Logger } from 'pino'
-import { ValidateError } from 'tsoa'
+import { ValidateError } from '@tsoa/runtime'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 

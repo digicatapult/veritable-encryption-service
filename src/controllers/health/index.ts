@@ -1,5 +1,5 @@
 import express from 'express'
-import { Controller, Get, Hidden, Request, Route, SuccessResponse } from 'tsoa'
+import { Controller, Get, Hidden, Request, Route, SuccessResponse } from '@tsoa/runtime'
 import { Health } from '../../models/health.js'
 import version from '../../version.js'
 

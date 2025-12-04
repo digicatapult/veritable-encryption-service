@@ -94,6 +94,7 @@ Ensure [certificates](#local-https-certificates) have been generated and `NODE_E
 ```sh
 docker compose up -d
 npm run tsoa:build
+npm run db:migrate
 npm run test:integration
 ```
 
