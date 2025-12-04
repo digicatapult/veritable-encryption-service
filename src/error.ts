@@ -1,6 +1,6 @@
+import { ValidateError } from '@tsoa/runtime'
 import { Request as ExRequest, Response as ExResponse, NextFunction } from 'express'
 import multer from 'multer'
-import { ValidateError } from 'tsoa'
 
 import env from './env.js'
 import { logger } from './logger.js'
