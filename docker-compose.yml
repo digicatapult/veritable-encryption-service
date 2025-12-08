@@ -18,7 +18,7 @@ services:
   ##################################################################################
 
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.16.8
+    image: digicatapult/veritable-cloudagent:v0.16.12
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -67,7 +67,7 @@ services:
 
   veritable-cloudagent-bob:
     container_name: veritable-cloudagent-bob
-    image: digicatapult/veritable-cloudagent:v0.16.8
+    image: digicatapult/veritable-cloudagent:v0.16.12
     restart: always
     depends_on:
       ipfs:
