@@ -72,7 +72,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@credo-ts/core": "^0.6.0",
+    "@credo-ts/core": "0.5.18",
     "@hyperledger/aries-askar-nodejs": "^0.2.3",
     "@tsoa/runtime": "^6.6.0",
     "@tweedegolf/sab-adapter-minio": "^3.0.1",
