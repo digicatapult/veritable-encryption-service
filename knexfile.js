@@ -15,6 +15,8 @@ export const pgConfig = {
   migrations: {
     directory: './src/lib/db/migrations',
     tableName: 'migrations',
+    extension: 'ts',
+    loadExtensions: ['.js', '.ts'],
   },
 }
 
@@ -32,6 +34,8 @@ const config = {
     },
     migrations: {
       directory: './build/lib/db/migrations',
+      extension: 'js',
+      loadExtensions: ['.js'],
     },
   },
 }

@@ -25,6 +25,7 @@ WORKDIR /veritable-encryption-service
 RUN apt-get update && apt-get install -y curl
 
 COPY package*.json ./
+COPY knexfile.js ./
 COPY --from=modules /veritable-encryption-service/node_modules ./node_modules
 COPY --from=builder /veritable-encryption-service/build ./build
 

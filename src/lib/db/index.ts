@@ -1,10 +1,15 @@
 import knex from 'knex'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { z } from 'zod'
 
 import { singleton } from 'tsyringe'
 import env from '../../env.js'
 import Zod, { IDatabase, Models, TABLE, tablesList, Where } from './types.js'
 import { reduceWhere } from './util.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const clientSingleton = knex({
   client: 'pg',
@@ -21,6 +26,8 @@ const clientSingleton = knex({
   },
   migrations: {
     tableName: 'migrations',
+    directory: path.join(__dirname, 'migrations'),
+    extension: path.extname(__filename).slice(1),
   },
 })
 
@@ -36,6 +43,10 @@ export default class Database {
       }
     }, {}) as IDatabase
     this.db = models
+  }
+
+  public async migrate() {
+    await this.client.migrate.latest()
   }
 
   insert = async <M extends TABLE>(
