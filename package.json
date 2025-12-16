@@ -51,8 +51,8 @@
     "@types/sinon": "^21.0.0",
     "@types/supertest": "^6.0.3",
     "@types/swagger-ui-express": "^4.1.8",
-    "@typescript-eslint/eslint-plugin": "^8.48.0",
-    "@typescript-eslint/parser": "^8.48.0",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/parser": "^8.48.1",
     "chai": "^6.2.1",
     "chai-as-promised": "^8.0.2",
     "concurrently": "^9.2.1",
@@ -63,7 +63,7 @@
     "globals": "^16.5.0",
     "mocha": "^11.7.5",
     "nodemon": "^3.1.11",
-    "prettier": "^3.7.3",
+    "prettier": "^3.7.4",
     "prettier-plugin-organize-imports": "^4.3.0",
     "rimraf": "^6.1.2",
     "sinon": "^21.0.0",
@@ -72,7 +72,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@credo-ts/core": "^0.5.18",
+    "@credo-ts/core": "0.5.18",
     "@hyperledger/aries-askar-nodejs": "^0.2.3",
     "@tsoa/runtime": "^6.6.0",
     "@tweedegolf/sab-adapter-minio": "^3.0.1",
