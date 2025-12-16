@@ -20,6 +20,8 @@ RUN npm ci --production
 
 FROM node:24-bookworm-slim AS service
 
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 WORKDIR /veritable-encryption-service
 
 RUN apt-get update && apt-get install -y curl
