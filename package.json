@@ -74,7 +74,6 @@
   "dependencies": {
     "@credo-ts/core": "0.5.18",
     "@hyperledger/aries-askar-nodejs": "^0.2.3",
-    "expo": "54.0.29",
     "@tsoa/runtime": "^6.6.0",
     "@tweedegolf/sab-adapter-minio": "^3.0.1",
     "@tweedegolf/sab-adapter-s3": "^3.0.3",
@@ -85,6 +84,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "envalid": "^8.1.1",
+    "expo": "54.0.29",
     "express": "^5.2.1",
     "knex": "^3.1.0",
     "multer": "^2.0.2",
