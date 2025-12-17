@@ -13,4 +13,5 @@ ignores: [
   '@types/multer',
   'multer',
   'pg',
+  'expo',
 ]

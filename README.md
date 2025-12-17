@@ -70,7 +70,7 @@ The `veritable-cloudagent` dependency includes a `did:web` server. Since `did:we
 - Install [mkcert](https://github.com/FiloSottile/mkcert#installation).
 - Run the following commands at root:
 
-```
+```bash
 mkcert -install
 mkcert veritable-cloudagent-alice localhost
 mkcert veritable-cloudagent-bob localhost
