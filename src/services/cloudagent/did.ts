@@ -9,7 +9,13 @@ import {
 import { DidDocument as CloudagentDidDocument } from './types.js'
 
 export const findPublicKeyBase64 = (didDocument: CloudagentDidDocument): string | undefined => {
-  const credoDidDocument = JsonTransformer.fromJSON(didDocument, CredoDidDocument)
+  let credoDidDocument: CredoDidDocument
+  try {
+    credoDidDocument = JsonTransformer.fromJSON(didDocument, CredoDidDocument)
+  } catch {
+    // Treat invalid DID documents as having no usable public key
+    return undefined
+  }
   const keyAgreements = credoDidDocument.keyAgreement ?? []
 
   for (const keyAgreement of keyAgreements) {
