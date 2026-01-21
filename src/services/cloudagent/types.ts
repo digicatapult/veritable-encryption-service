@@ -23,7 +23,7 @@ export type Connection = z.infer<typeof connectionParser>
 // JWK is a current (non-legacy) encoding used by DID resolvers
 const publicKeyJwkParser = z
   .object({
-    kty: z.string().optional(),
+    kty: z.string(),
     x: z.string(),
     crv: z.string(),
   })
