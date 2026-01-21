@@ -1,22 +1,33 @@
 import { z } from 'zod'
 import { type CredentialDefinitionId } from '../../models/stringTypes.js'
 
+const connectionStates = [
+  'start',
+  'invitation-sent',
+  'invitation-received',
+  'request-sent',
+  'request-received',
+  'response-sent',
+  'response-received',
+  'abandoned',
+  'completed',
+] as const
+
 const connectionParser = z.object({
   id: z.uuid(),
-  state: z.enum([
-    'start',
-    'invitation-sent',
-    'invitation-received',
-    'request-sent',
-    'request-received',
-    'response-sent',
-    'response-received',
-    'abandoned',
-    'completed',
-  ]),
+  state: z.enum(connectionStates),
   outOfBandId: z.uuid(),
 })
 export type Connection = z.infer<typeof connectionParser>
+
+// JWK is a current (non-legacy) encoding used by DID resolvers
+const publicKeyJwkParser = z
+  .object({
+    kty: z.string(),
+    x: z.string(),
+    crv: z.string(),
+  })
+  .catchall(z.unknown())
 
 const verificationMethodParser = z.object({
   id: z.string(),
@@ -24,13 +35,18 @@ const verificationMethodParser = z.object({
   controller: z.string(),
   publicKeyBase58: z.string().optional(),
   publicKeyBase64: z.string().optional(),
-  publicKeyJwk: z.object({ x: z.string(), crv: z.string() }).optional(),
+  publicKeyMultibase: z.string().optional(),
+  publicKeyJwk: publicKeyJwkParser.optional(),
 })
 export type VerificationMethod = z.infer<typeof verificationMethodParser>
 
+const keyAgreementEntryParser = z.union([z.string(), verificationMethodParser])
+export type KeyAgreementEntry = z.infer<typeof keyAgreementEntryParser>
+
 const didDocumentParser = z.looseObject({
   id: z.string(),
-  keyAgreement: z.array(verificationMethodParser).optional(),
+  verificationMethod: z.array(verificationMethodParser).optional(),
+  keyAgreement: z.array(keyAgreementEntryParser).optional(),
 })
 export type DidDocument = z.infer<typeof didDocumentParser>
 
@@ -93,12 +109,11 @@ export const credentialParser = z.object({
 })
 export type Credential = z.infer<typeof credentialParser>
 
-export type BasicMessage = z.infer<typeof basicMessageParser>
-
 const basicMessageParser = z.object({
   content: z.string(),
   role: z.string(),
 })
+export type BasicMessage = z.infer<typeof basicMessageParser>
 
 export const walletDecryptParser = z.string()
 
