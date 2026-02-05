@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.20
+# syntax=docker/dockerfile:1.21
 FROM node:24-bookworm AS builder
 
 WORKDIR /veritable-encryption-service
