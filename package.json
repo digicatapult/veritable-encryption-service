@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.1.50",
+  "version": "0.1.51",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -88,7 +88,7 @@
     "express": "^5.2.1",
     "knex": "^3.1.0",
     "multer": "^2.0.2",
-    "pg": "^8.18.0",
+    "pg": "^8.19.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
     "pino-pretty": "13.1.3",
