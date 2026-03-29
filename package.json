@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.1.63",
+  "version": "0.1.64",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -42,7 +42,7 @@
     "@eslint/js": "^10.0.1",
     "@swc-node/register": "^1.11.1",
     "@swc/cli": "^0.8.0",
-    "@swc/core": "^1.15.18",
+    "@swc/core": "^1.15.21",
     "@types/chai": "^5.2.3",
     "@types/chai-as-promised": "^8.0.2",
     "@types/cors": "^2.8.19",
@@ -51,13 +51,13 @@
     "@types/sinon": "^21.0.0",
     "@types/supertest": "^7.2.0",
     "@types/swagger-ui-express": "^4.1.8",
-    "@typescript-eslint/eslint-plugin": "^8.57.1",
-    "@typescript-eslint/parser": "^8.57.1",
+    "@typescript-eslint/eslint-plugin": "^8.57.2",
+    "@typescript-eslint/parser": "^8.57.2",
     "chai": "^6.2.2",
     "chai-as-promised": "^8.0.2",
     "concurrently": "^9.2.1",
     "depcheck": "^1.4.7",
-    "eslint": "^10.0.3",
+    "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "globals": "^17.4.0",
@@ -86,7 +86,7 @@
     "envalid": "^8.1.1",
     "expo": "55.0.8",
     "express": "^5.2.1",
-    "knex": "^3.1.0",
+    "knex": "^3.2.6",
     "multer": "^2.1.1",
     "pg": "^8.20.0",
     "pino": "^10.3.1",
@@ -100,6 +100,6 @@
   },
   "overrides": {
     "ref-napi": "npm:@2060.io/ref-napi",
-    "node-addon-api": "8.6.0"
+    "node-addon-api": "8.7.0"
   }
 }
