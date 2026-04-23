@@ -68,7 +68,7 @@ export default class Cloudagent {
     )
   }
 
-  public async createDid(method: string, options: Record<string, string>): Promise<DidDocument> {
+  public async createDid(method: string, options: Record<string, unknown>): Promise<DidDocument> {
     return this.postRequest('/v1/dids/create', { method, options }, this.buildParser(didCreateParser)).then(
       (res) => res.didDocument
     )

@@ -1,6 +1,5 @@
 import { container } from 'tsyringe'
 
-import { KeyType } from '@credo-ts/core'
 import env from '../../src/env.js'
 import { resetContainer } from '../../src/ioc.js'
 import Database from '../../src/lib/db/index.js'
@@ -16,6 +15,7 @@ import { mockEnvBob, mockLogger } from './mock.js'
 import { pollUntil } from './poll.js'
 
 const didKey = 'did:key:z6Mkk7yqnGF3YwTrLpqrW6PGsKci7dNqh1CjnvMbzrMerSeL' // to register schemas and cred defs
+const localDidWeb = 'did:web:veritable-cloudagent-alice%3A8443'
 
 export type TwoPartyContext = {
   localCloudagent: VeritableCloudagent
@@ -64,7 +64,7 @@ export const withEstablishedConnection = async (context: TwoPartyContext) => {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ invitationUrl: aliceToBobInvitationUrl }),
+    body: JSON.stringify({ invitationUrl: aliceToBobInvitationUrl, label: 'Bob' }),
   })
   const bobInvitationJson = await bobInvitation.json()
   const bobOobRecordId = bobInvitationJson.outOfBandRecord.id
@@ -123,9 +123,7 @@ export async function testCleanup(context: TwoPartyContext) {
 }
 
 export const createLocalDid = async (context: TwoPartyContext) => {
-  const did = await context.localCloudagent.createDid('key', {
-    keyType: KeyType.X25519,
-  })
+  const did = await context.localCloudagent.resolveDid(localDidWeb)
   const publicKey64 = findPublicKeyBase64(did)
   if (!publicKey64) throw new Error('Failed to find public key for created DID')
   return publicKey64

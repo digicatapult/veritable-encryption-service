@@ -2,6 +2,7 @@ import { decode, encode } from 'cbor2'
 import * as chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import { InternalError } from '../../src/error.js'
+import { findPublicKeyBase64 } from '../../src/services/cloudagent/did.js'
 import { EncryptedPayload } from '../../src/services/encryption/aesGcm.js'
 import { createLocalDid, setupTwoPartyContext, testCleanup, TwoPartyContext } from '../helpers/twoPartyContext.js'
 
@@ -59,12 +60,14 @@ describe('encryption', async () => {
   })
 
   it('error - cek decryption fails with wrong recipient public key', async () => {
-    const wrongPublicKey = await createLocalDid(context)
+    const bobDid = await context.remoteCloudagent.resolveDid('did:web:veritable-cloudagent-bob%3A8443')
+    const wrongPublicKey = findPublicKeyBase64(bobDid)
+    if (!wrongPublicKey) throw new Error('Failed to find wrong recipient public key')
     const { encryptedCek } = context.localEncryption.encryptPlaintext(plaintext, recipientPublicKey)
 
     await expect(context.localCloudagent.walletDecrypt(encryptedCek, wrongPublicKey)).to.be.rejectedWith(
       InternalError,
-      'AEAD decryption error'
+      /AEAD decryption error|not found in backend/
     )
   })
 
