@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.1.76",
+  "version": "0.1.77",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -84,7 +84,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "envalid": "^8.1.1",
-    "expo": "55.0.16",
+    "expo": "55.0.17",
     "express": "^5.2.1",
     "knex": "^3.2.9",
     "multer": "^2.1.1",
