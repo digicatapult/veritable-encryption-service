@@ -125,6 +125,6 @@ export async function testCleanup(context: TwoPartyContext) {
 export const resolveLocalPublicKey = async (context: TwoPartyContext) => {
   const did = await context.localCloudagent.resolveDid(localDidWeb)
   const publicKey64 = findPublicKeyBase64(did)
-  if (!publicKey64) throw new Error('Failed to find public key for created DID')
+  if (!publicKey64) throw new Error(`Failed to find public key for resolved local DID:web (${localDidWeb})`)
   return publicKey64
 }
