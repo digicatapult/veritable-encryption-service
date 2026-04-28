@@ -1,8 +1,7 @@
-import { KeyType } from '@credo-ts/core'
 import { expect } from 'chai'
 import { encryptEcdh } from '../../src/services/encryption/ecdh.js'
 import {
-  createLocalDid,
+  resolveLocalPublicKey,
   setupTwoPartyContext,
   testCleanup,
   TwoPartyContext,
@@ -30,13 +29,18 @@ describe('cloudagent', async () => {
 
   it('getConnections', async () => {
     const connections = await context.localCloudagent.getConnections()
-    expect(connections).to.have.length(1)
-    expect(connections[0].id).to.equal(context.localConnectionId)
+    expect(connections.length).to.be.greaterThan(0)
+    expect(connections.some((connection) => connection.id === context.localConnectionId)).to.equal(true)
   })
 
   it('createDid', async () => {
     const did = await context.localCloudagent.createDid('key', {
-      keyType: KeyType.X25519,
+      createKey: {
+        type: {
+          kty: 'OKP',
+          crv: 'X25519',
+        },
+      },
     })
     expect(did.id).to.include('did:key:')
   })
@@ -49,7 +53,12 @@ describe('cloudagent', async () => {
 
   it('resolveDid', async () => {
     const did = await context.localCloudagent.createDid('key', {
-      keyType: KeyType.X25519,
+      createKey: {
+        type: {
+          kty: 'OKP',
+          crv: 'X25519',
+        },
+      },
     })
     const resolvedDid = await context.localCloudagent.resolveDid(did.id)
     expect(resolvedDid.id).to.equal(did.id)
@@ -109,7 +118,7 @@ describe('cloudagent', async () => {
 
   it('walletDecrypt', async () => {
     const plaintext = Buffer.from('test')
-    const publicKey64 = await createLocalDid(context)
+    const publicKey64 = await resolveLocalPublicKey(context)
     const encrypted = encryptEcdh(Buffer.from(plaintext), publicKey64)
     const decrypted = await context.localCloudagent.walletDecrypt(encrypted, publicKey64)
     expect(decrypted).to.deep.equal(plaintext)

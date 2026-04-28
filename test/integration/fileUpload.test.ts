@@ -1,4 +1,3 @@
-import { KeyType } from '@credo-ts/core'
 import { expect } from 'chai'
 import { createHash } from 'crypto'
 import { Express } from 'express'
@@ -22,10 +21,8 @@ describe('File Upload controller tests', function () {
   before(async () => {
     await setupTwoPartyContext(context)
     app = await createHttpServer()
-    const did = await context.localCloudagent.createDid('key', {
-      keyType: KeyType.X25519,
-    })
-    recipientDid = did.id
+    recipientDid = 'did:web:veritable-cloudagent-alice%3A8443'
+    const did = await context.localCloudagent.resolveDid(recipientDid)
     recipientPublicKey = findPublicKeyBase64(did)!
   })
 

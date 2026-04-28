@@ -1,16 +1,25 @@
 import { expect } from 'chai'
 
-import { Key, KeyType, TypedArrayEncoder } from '@credo-ts/core'
+import { Kms, TypedArrayEncoder } from '@credo-ts/core'
 
-import { findPublicKeyBase64 } from './did.js'
-import type { DidDocument } from './types.js'
+import { findPublicKeyBase64 } from '../../src/services/cloudagent/did.js'
+import type { DidDocument } from '../../src/services/cloudagent/types.js'
+
+const createOkpPublicKeyBytes = (fill: number) => new Uint8Array(32).fill(fill)
+
+const createOkpPublicJwkFingerprint = (publicKey: Uint8Array, crv: 'Ed25519' | 'X25519') =>
+  Kms.PublicJwk.fromPublicKey({
+    kty: 'OKP',
+    crv,
+    publicKey,
+  }).fingerprint
 
 describe('cloudagent did key extraction', () => {
   it('returns key when keyAgreement references verificationMethod by id', () => {
     // DID:web documents commonly use keyAgreement as a string reference that points
     // at a verificationMethod entry
-    const x25519Key = Key.fromPublicKey(new Uint8Array(32).fill(1), KeyType.X25519)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519Key.publicKey)
+    const x25519PublicKey = createOkpPublicKeyBytes(1)
+    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -19,7 +28,7 @@ describe('cloudagent did key extraction', () => {
           id: 'did:web:example.com#encryption',
           type: 'X25519KeyAgreementKey2019',
           controller: 'did:web:example.com',
-          publicKeyBase58: x25519Key.publicKeyBase58,
+          publicKeyBase58: TypedArrayEncoder.toBase58(x25519PublicKey),
         },
       ],
       keyAgreement: ['did:web:example.com#encryption'],
@@ -30,8 +39,8 @@ describe('cloudagent did key extraction', () => {
 
   it('returns key when keyAgreement embeds the verification method', () => {
     // DIDDocs can embed the key agreement verification method directly in keyAgreement
-    const x25519Key = Key.fromPublicKey(new Uint8Array(32).fill(2), KeyType.X25519)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519Key.publicKey)
+    const x25519PublicKey = createOkpPublicKeyBytes(2)
+    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:peer:123',
@@ -40,7 +49,7 @@ describe('cloudagent did key extraction', () => {
           id: 'did:peer:123#key-1',
           type: 'X25519KeyAgreementKey2019',
           controller: 'did:peer:123',
-          publicKeyBase58: x25519Key.publicKeyBase58,
+          publicKeyBase58: TypedArrayEncoder.toBase58(x25519PublicKey),
         },
       ],
     }
@@ -50,9 +59,9 @@ describe('cloudagent did key extraction', () => {
 
   it('returns key when keyAgreement references JsonWebKey2020 publicKeyJwk for X25519', () => {
     // DIDDocs can use JWK (eg. OKP/X25519), rather than base58 or multibase
-    const x25519Key = Key.fromPublicKey(new Uint8Array(32).fill(3), KeyType.X25519)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519Key.publicKey)
-    const jwkX = TypedArrayEncoder.toBase64URL(x25519Key.publicKey)
+    const x25519PublicKey = createOkpPublicKeyBytes(3)
+    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
+    const jwkX = TypedArrayEncoder.toBase64URL(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -77,8 +86,8 @@ describe('cloudagent did key extraction', () => {
   it('returns key when keyAgreement uses a fragment-only reference', () => {
     // DIDDoc serializations can use fragment-only references (eg. '#encryption')
     // for keyAgreement entries
-    const x25519Key = Key.fromPublicKey(new Uint8Array(32).fill(4), KeyType.X25519)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519Key.publicKey)
+    const x25519PublicKey = createOkpPublicKeyBytes(4)
+    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -87,7 +96,7 @@ describe('cloudagent did key extraction', () => {
           id: 'did:web:example.com#encryption',
           type: 'X25519KeyAgreementKey2019',
           controller: 'did:web:example.com',
-          publicKeyBase58: x25519Key.publicKeyBase58,
+          publicKeyBase58: TypedArrayEncoder.toBase58(x25519PublicKey),
         },
       ],
       keyAgreement: ['#encryption'],
@@ -99,9 +108,9 @@ describe('cloudagent did key extraction', () => {
   it('returns the first usable X25519 key when multiple keyAgreement entries are present', () => {
     // DIDDocs may publish multiple keyAgreement references
     // We should skip unusable entries and return the first X25519
-    const ed25519Key = Key.fromPublicKey(new Uint8Array(32).fill(5), KeyType.Ed25519)
-    const x25519Key = Key.fromPublicKey(new Uint8Array(32).fill(6), KeyType.X25519)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519Key.publicKey)
+    const ed25519PublicKey = createOkpPublicKeyBytes(5)
+    const x25519PublicKey = createOkpPublicKeyBytes(6)
+    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -110,13 +119,13 @@ describe('cloudagent did key extraction', () => {
           id: 'did:web:example.com#signing',
           type: 'Multikey',
           controller: 'did:web:example.com',
-          publicKeyMultibase: ed25519Key.fingerprint,
+          publicKeyMultibase: createOkpPublicJwkFingerprint(ed25519PublicKey, 'Ed25519'),
         },
         {
           id: 'did:web:example.com#encryption',
           type: 'Multikey',
           controller: 'did:web:example.com',
-          publicKeyMultibase: x25519Key.fingerprint,
+          publicKeyMultibase: createOkpPublicJwkFingerprint(x25519PublicKey, 'X25519'),
         },
       ],
       keyAgreement: ['did:web:example.com#signing', 'did:web:example.com#encryption'],
@@ -156,8 +165,8 @@ describe('cloudagent did key extraction', () => {
 
   it('supports canonical Multikey/publicKeyMultibase for X25519', () => {
     // DIDDocs can represent key material via Multikey + publicKeyMultibase
-    const x25519Key = Key.fromPublicKey(new Uint8Array(32).fill(7), KeyType.X25519)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519Key.publicKey)
+    const x25519PublicKey = createOkpPublicKeyBytes(7)
+    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -166,7 +175,7 @@ describe('cloudagent did key extraction', () => {
           id: 'did:web:example.com#encryption',
           type: 'Multikey',
           controller: 'did:web:example.com',
-          publicKeyMultibase: x25519Key.fingerprint,
+          publicKeyMultibase: createOkpPublicJwkFingerprint(x25519PublicKey, 'X25519'),
         },
       ],
       keyAgreement: ['did:web:example.com#encryption'],
@@ -177,9 +186,9 @@ describe('cloudagent did key extraction', () => {
 
   it('supports a mixed DIDDoc with signing and key-agreement Multikey verification methods', () => {
     // DID:web documents typically publish both a signing key (Ed25519) and an agreement key (X25519)
-    const ed25519Key = Key.fromPublicKey(new Uint8Array(32).fill(8), KeyType.Ed25519)
-    const x25519Key = Key.fromPublicKey(new Uint8Array(32).fill(9), KeyType.X25519)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519Key.publicKey)
+    const ed25519PublicKey = createOkpPublicKeyBytes(8)
+    const x25519PublicKey = createOkpPublicKeyBytes(9)
+    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -188,13 +197,13 @@ describe('cloudagent did key extraction', () => {
           id: 'did:web:example.com#owner',
           type: 'Multikey',
           controller: 'did:web:example.com',
-          publicKeyMultibase: ed25519Key.fingerprint,
+          publicKeyMultibase: createOkpPublicJwkFingerprint(ed25519PublicKey, 'Ed25519'),
         },
         {
           id: 'did:web:example.com#encryption',
           type: 'Multikey',
           controller: 'did:web:example.com',
-          publicKeyMultibase: x25519Key.fingerprint,
+          publicKeyMultibase: createOkpPublicJwkFingerprint(x25519PublicKey, 'X25519'),
         },
       ],
       keyAgreement: ['did:web:example.com#encryption'],

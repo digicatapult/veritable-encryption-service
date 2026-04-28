@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe, it } from 'mocha'
-import { ENCRYPTION_CONFIGS } from '../config'
-import Encryption from '../index'
+import { ENCRYPTION_CONFIGS } from '../../src/services/encryption/config.js'
+import Encryption from '../../src/services/encryption/index.js'
 
 describe('Encryption', () => {
   it('aes-256-gcm - should encrypt and decrypt', async () => {
@@ -31,6 +31,6 @@ describe('Encryption', () => {
     const encryption = new Encryption(ENCRYPTION_CONFIGS.VERI)
     const cek = encryption.generateCek()
     encryption.destroyCek(cek)
-    expect(cek.every((byte) => byte === 0)).to.equal(true)
+    expect(cek.every((byte: number) => byte === 0)).to.equal(true)
   })
 })

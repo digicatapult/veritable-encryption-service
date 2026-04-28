@@ -1,11 +1,12 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.1.76",
+  "version": "0.2.0",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "check": "npm run tsoa:build && tsc --noEmit",
     "depcheck": "depcheck",
     "clean": "rimraf -rf ./build",
@@ -15,7 +16,7 @@
     "dev": "concurrently \"npm run tsoa:watch\" \"nodemon --watch src --watch build/routes/swagger.json --ext ts,json --exec 'SWCRC=true NODE_ENV=dev node --import @swc-node/register/esm-register --enable-source-maps src/index.ts | pino-pretty -c -S'\"",
     "start": "node build/index.js",
     "test:integration": "NODE_OPTIONS=--no-experimental-strip-types NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./test/integration/*.test.ts",
-    "test:unit": "NODE_OPTIONS=--no-experimental-strip-types NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./src/**/*.test.ts",
+    "test:unit": "NODE_OPTIONS=--no-experimental-strip-types NODE_ENV=test ./node_modules/.bin/mocha --config ./test/mocharc.json ./test/unit/*.test.ts",
     "db:cmd": "node --import @swc-node/register/esm-register ./node_modules/.bin/knex",
     "db:migrate": "npm run db:cmd -- migrate:latest",
     "db:rollback": "npm run db:cmd -- migrate:rollback"
@@ -72,8 +73,8 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "@credo-ts/core": "0.5.18",
-    "@hyperledger/aries-askar-nodejs": "^0.2.3",
+    "@credo-ts/core": "^0.6.3",
+    "@openwallet-foundation/askar-nodejs": "^0.4.3",
     "@tsoa/runtime": "^6.6.0",
     "@tweedegolf/sab-adapter-minio": "^3.0.1",
     "@tweedegolf/sab-adapter-s3": "^3.0.3",

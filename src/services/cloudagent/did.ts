@@ -1,8 +1,7 @@
 import {
   DidDocument as CredoDidDocument,
-  getKeyFromVerificationMethod,
+  getPublicJwkFromVerificationMethod,
   JsonTransformer,
-  KeyType,
   TypedArrayEncoder,
   type VerificationMethod as CredoVerificationMethod,
 } from '@credo-ts/core'
@@ -22,11 +21,12 @@ export const findPublicKeyBase64 = (didDocument: CloudagentDidDocument): string 
     const verificationMethod = dereferenceKeyAgreement(credoDidDocument, keyAgreement)
     if (!verificationMethod) continue
 
-    const key = safeGetKeyFromVerificationMethod(verificationMethod)
-    if (!key || key.keyType !== KeyType.X25519) continue
+    const publicJwk = safeGetPublicJwkFromVerificationMethod(verificationMethod)
+    const publicKey = publicJwk?.publicKey
+    if (!publicKey || publicKey.kty !== 'OKP' || publicKey.crv !== 'X25519') continue
 
     // Return base64 encoding of the raw X25519 public key bytes
-    return TypedArrayEncoder.toBase64(key.publicKey)
+    return TypedArrayEncoder.toBase64(publicKey.publicKey)
   }
 
   return undefined
@@ -48,9 +48,9 @@ const dereferenceKeyAgreement = (
   }
 }
 
-const safeGetKeyFromVerificationMethod = (verificationMethod: CredoVerificationMethod) => {
+const safeGetPublicJwkFromVerificationMethod = (verificationMethod: CredoVerificationMethod) => {
   try {
-    return getKeyFromVerificationMethod(verificationMethod)
+    return getPublicJwkFromVerificationMethod(verificationMethod)
   } catch {
     return undefined
   }

@@ -1,16 +1,17 @@
-import { Buffer as CredoBuffer, JsonEncoder, Key, KeyType, TypedArrayEncoder } from '@credo-ts/core'
-import { Key as AskarKey, EcdhEs, keyAlgFromString, KeyAlgs } from '@hyperledger/aries-askar-nodejs'
+import { Buffer as CredoBuffer, JsonEncoder, TypedArrayEncoder } from '@credo-ts/core'
+import { Key as AskarKey, EcdhEs, KeyAlgorithm } from '@openwallet-foundation/askar-nodejs'
 
 export const ENC = 'A256GCM'
 export const ALG = 'ECDH-ES'
+const X25519 = KeyAlgorithm.X25519
 
 export function encryptEcdh(plaintext: Buffer, publicKey64: string): string {
-  const recipientKey = new Key(TypedArrayEncoder.fromBase64(publicKey64), KeyType.X25519)
+  const recipientPublicKey = TypedArrayEncoder.fromBase64(publicKey64)
 
   let ephemeralKey: AskarKey | undefined
 
   try {
-    ephemeralKey = AskarKey.generate(keyAlgFromString(recipientKey.keyType))
+    ephemeralKey = AskarKey.generate(X25519)
 
     const header = {
       enc: ENC,
@@ -27,12 +28,12 @@ export function encryptEcdh(plaintext: Buffer, publicKey64: string): string {
     })
 
     const recipientAskarKey = AskarKey.fromPublicBytes({
-      algorithm: keyAlgFromString(recipientKey.keyType),
-      publicKey: recipientKey.publicKey,
+      algorithm: X25519,
+      publicKey: recipientPublicKey,
     })
 
     const { ciphertext, tag, nonce } = ecdh.encryptDirect({
-      encAlg: KeyAlgs.AesA256Gcm,
+      encryptionAlgorithm: KeyAlgorithm.AesA256Gcm,
       ephemeralKey,
       message: Uint8Array.from(CredoBuffer.from(plaintext)),
       recipientKey: recipientAskarKey,
