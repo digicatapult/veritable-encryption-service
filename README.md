@@ -61,7 +61,7 @@ This project uses Node.js 24 LTS. Due to compatibility requirements with native 
 
 **Important**: Both overrides must be present together for the native modules to compile successfully with Node.js 24. Removing either override will cause build failures with node-gyp.
 
-These overrides enable the `@hyperledger/aries-askar-nodejs` dependency (used for encryption operations) to work with Node.js 24.
+These overrides enable the `@openwallet-foundation/askar-nodejs` dependency (used for encryption operations) to work with Node.js 24.
 
 ## Local HTTPS Certificates
 
