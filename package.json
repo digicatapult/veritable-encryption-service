@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "check": "npm run tsoa:build && tsc --noEmit",
     "depcheck": "depcheck",
     "clean": "rimraf -rf ./build",

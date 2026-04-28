@@ -4,7 +4,12 @@ import chaiAsPromised from 'chai-as-promised'
 import { InternalError } from '../../src/error.js'
 import { findPublicKeyBase64 } from '../../src/services/cloudagent/did.js'
 import { EncryptedPayload } from '../../src/services/encryption/aesGcm.js'
-import { createLocalDid, setupTwoPartyContext, testCleanup, TwoPartyContext } from '../helpers/twoPartyContext.js'
+import {
+  resolveLocalPublicKey,
+  setupTwoPartyContext,
+  testCleanup,
+  TwoPartyContext,
+} from '../helpers/twoPartyContext.js'
 
 chai.use(chaiAsPromised)
 const expect = chai.expect
@@ -16,7 +21,7 @@ describe('encryption', async () => {
 
   before(async function () {
     await setupTwoPartyContext(context)
-    recipientPublicKey = await createLocalDid(context)
+    recipientPublicKey = await resolveLocalPublicKey(context)
   })
 
   after(async () => {
