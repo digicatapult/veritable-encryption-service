@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -58,10 +58,10 @@
     "chai-as-promised": "^8.0.2",
     "concurrently": "^9.2.1",
     "depcheck": "^1.4.7",
-    "eslint": "^10.2.1",
+    "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
-    "globals": "^17.5.0",
+    "globals": "^17.6.0",
     "mocha": "^11.7.5",
     "nodemon": "^3.1.14",
     "prettier": "^3.8.3",
@@ -85,7 +85,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "envalid": "^8.1.1",
-    "expo": "55.0.18",
+    "expo": "55.0.19",
     "express": "^5.2.1",
     "knex": "^3.2.9",
     "multer": "^2.1.1",
@@ -97,7 +97,7 @@
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
     "tsyringe": "^4.10.0",
-    "zod": "^4.4.1"
+    "zod": "^4.4.2"
   },
   "overrides": {
     "ref-napi": "npm:@2060.io/ref-napi",
