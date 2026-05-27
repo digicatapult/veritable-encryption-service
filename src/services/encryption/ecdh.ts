@@ -5,8 +5,8 @@ export const ENC = 'A256GCM'
 export const ALG = 'ECDH-ES'
 const X25519 = KeyAlgorithm.X25519
 
-export function encryptEcdh(plaintext: Buffer, publicKey64: string): string {
-  const recipientPublicKey = TypedArrayEncoder.fromBase64(publicKey64)
+export function encryptEcdh(plaintext: Buffer, publicKey: string): string {
+  const recipientPublicKey = TypedArrayEncoder.fromBase64Url(publicKey)
 
   let ephemeralKey: AskarKey | undefined
 

@@ -4,7 +4,7 @@ import env from '../../src/env.js'
 import { resetContainer } from '../../src/ioc.js'
 import Database from '../../src/lib/db/index.js'
 import { UUID } from '../../src/models/stringTypes.js'
-import { findPublicKeyBase64 } from '../../src/services/cloudagent/did.js'
+import { findPublicKeyBase64Url } from '../../src/services/cloudagent/did.js'
 import VeritableCloudagent from '../../src/services/cloudagent/index.js'
 import { Connection, Credential } from '../../src/services/cloudagent/types.js'
 import { ENCRYPTION_CONFIGS } from '../../src/services/encryption/config.js'
@@ -124,7 +124,7 @@ export async function testCleanup(context: TwoPartyContext) {
 
 export const resolveLocalPublicKey = async (context: TwoPartyContext) => {
   const did = await context.localCloudagent.resolveDid(localDidWeb)
-  const publicKey64 = findPublicKeyBase64(did)
+  const publicKey64 = findPublicKeyBase64Url(did)
   if (!publicKey64) throw new Error(`Failed to find public key for resolved local DID:web (${localDidWeb})`)
   return publicKey64
 }
