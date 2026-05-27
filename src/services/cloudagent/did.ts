@@ -25,7 +25,7 @@ export const findPublicKeyBase64Url = (didDocument: CloudagentDidDocument): stri
     const publicKey = publicJwk?.publicKey
     if (!publicKey || publicKey.kty !== 'OKP' || publicKey.crv !== 'X25519') continue
 
-    // Return base64url encoding to match cloudagent wallet decrypt contract
+    // Return base64Url encoding of the raw X25519 public key bytes
     return TypedArrayEncoder.toBase64Url(publicKey.publicKey)
   }
 
