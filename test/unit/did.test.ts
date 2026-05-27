@@ -61,7 +61,7 @@ describe('cloudagent did key extraction', () => {
     // DIDDocs can use JWK (eg. OKP/X25519), rather than base58 or multibase
     const x25519PublicKey = createOkpPublicKeyBytes(3)
     const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
-    const jwkX = TypedArrayEncoder.toBase64URL(x25519PublicKey)
+    const jwkX = TypedArrayEncoder.toBase64Url(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
