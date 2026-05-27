@@ -7,7 +7,7 @@ import {
 } from '@credo-ts/core'
 import { DidDocument as CloudagentDidDocument } from './types.js'
 
-export const findPublicKeyBase64 = (didDocument: CloudagentDidDocument): string | undefined => {
+export const findPublicKeyBase64Url = (didDocument: CloudagentDidDocument): string | undefined => {
   let credoDidDocument: CredoDidDocument
   try {
     credoDidDocument = JsonTransformer.fromJSON(didDocument, CredoDidDocument)
@@ -25,8 +25,8 @@ export const findPublicKeyBase64 = (didDocument: CloudagentDidDocument): string 
     const publicKey = publicJwk?.publicKey
     if (!publicKey || publicKey.kty !== 'OKP' || publicKey.crv !== 'X25519') continue
 
-    // Return base64 encoding of the raw X25519 public key bytes
-    return TypedArrayEncoder.toBase64(publicKey.publicKey)
+    // Return base64Url encoding of the raw X25519 public key bytes
+    return TypedArrayEncoder.toBase64Url(publicKey.publicKey)
   }
 
   return undefined

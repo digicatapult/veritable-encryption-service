@@ -1,12 +1,12 @@
-import { Buffer as CredoBuffer, JsonEncoder, TypedArrayEncoder } from '@credo-ts/core'
+import { JsonEncoder, TypedArrayEncoder } from '@credo-ts/core'
 import { Key as AskarKey, EcdhEs, KeyAlgorithm } from '@openwallet-foundation/askar-nodejs'
 
 export const ENC = 'A256GCM'
 export const ALG = 'ECDH-ES'
 const X25519 = KeyAlgorithm.X25519
 
-export function encryptEcdh(plaintext: Buffer, publicKey64: string): string {
-  const recipientPublicKey = TypedArrayEncoder.fromBase64(publicKey64)
+export function encryptEcdh(plaintext: Buffer, publicKey: string): string {
+  const recipientPublicKey = TypedArrayEncoder.fromBase64Url(publicKey)
 
   let ephemeralKey: AskarKey | undefined
 
@@ -19,10 +19,10 @@ export function encryptEcdh(plaintext: Buffer, publicKey64: string): string {
       epk: ephemeralKey.jwkPublic,
     }
 
-    const encodedHeader = JsonEncoder.toBase64URL(header)
+    const encodedHeader = JsonEncoder.toBase64Url(header)
 
     const ecdh = new EcdhEs({
-      algId: Uint8Array.from(CredoBuffer.from(ENC)),
+      algId: TypedArrayEncoder.fromUtf8String(ENC),
       apu: Uint8Array.from([]),
       apv: Uint8Array.from([]),
     })
@@ -35,18 +35,18 @@ export function encryptEcdh(plaintext: Buffer, publicKey64: string): string {
     const { ciphertext, tag, nonce } = ecdh.encryptDirect({
       encryptionAlgorithm: KeyAlgorithm.AesA256Gcm,
       ephemeralKey,
-      message: Uint8Array.from(CredoBuffer.from(plaintext)),
+      message: plaintext,
       recipientKey: recipientAskarKey,
-      aad: Uint8Array.from(CredoBuffer.from(encodedHeader)), // AAD as bytes of encoded header
+      aad: TypedArrayEncoder.fromUtf8String(encodedHeader), // AAD as bytes of encoded header
     })
 
     // Return compact JWE
     return [
       encodedHeader,
       '', // No encrypted key for ECDH-ES
-      TypedArrayEncoder.toBase64URL(nonce),
-      TypedArrayEncoder.toBase64URL(ciphertext),
-      TypedArrayEncoder.toBase64URL(tag),
+      TypedArrayEncoder.toBase64Url(nonce),
+      TypedArrayEncoder.toBase64Url(ciphertext),
+      TypedArrayEncoder.toBase64Url(tag),
     ].join('.')
   } finally {
     ephemeralKey?.handle.free()

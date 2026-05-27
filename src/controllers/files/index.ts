@@ -4,7 +4,7 @@ import express from 'express'
 import { container } from 'tsyringe'
 import { BadRequest } from '../../error.js'
 import Database from '../../lib/db/index.js'
-import { findPublicKeyBase64 } from '../../services/cloudagent/did.js'
+import { findPublicKeyBase64Url } from '../../services/cloudagent/did.js'
 import Cloudagent from '../../services/cloudagent/index.js'
 import { ENCRYPTION_CONFIGS } from '../../services/encryption/config.js'
 import Encryption from '../../services/encryption/index.js'
@@ -55,7 +55,7 @@ export class FilesController extends Controller {
 
     const recipientDidDoc = await this.cloudagent.resolveDid(recipientDid)
 
-    const recipientPublicKey64 = findPublicKeyBase64(recipientDidDoc)
+    const recipientPublicKey64 = findPublicKeyBase64Url(recipientDidDoc)
     if (!recipientPublicKey64) {
       throw new BadRequest(`No valid public key found for DID '${recipientDid}'`)
     }

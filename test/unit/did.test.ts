@@ -2,7 +2,7 @@ import { expect } from 'chai'
 
 import { Kms, TypedArrayEncoder } from '@credo-ts/core'
 
-import { findPublicKeyBase64 } from '../../src/services/cloudagent/did.js'
+import { findPublicKeyBase64Url } from '../../src/services/cloudagent/did.js'
 import type { DidDocument } from '../../src/services/cloudagent/types.js'
 
 const createOkpPublicKeyBytes = (fill: number) => new Uint8Array(32).fill(fill)
@@ -19,7 +19,7 @@ describe('cloudagent did key extraction', () => {
     // DID:web documents commonly use keyAgreement as a string reference that points
     // at a verificationMethod entry
     const x25519PublicKey = createOkpPublicKeyBytes(1)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
+    const expectedBase64Url = TypedArrayEncoder.toBase64Url(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -34,13 +34,13 @@ describe('cloudagent did key extraction', () => {
       keyAgreement: ['did:web:example.com#encryption'],
     }
 
-    expect(findPublicKeyBase64(didDocument)).to.equal(expectedBase64)
+    expect(findPublicKeyBase64Url(didDocument)).to.equal(expectedBase64Url)
   })
 
   it('returns key when keyAgreement embeds the verification method', () => {
     // DIDDocs can embed the key agreement verification method directly in keyAgreement
     const x25519PublicKey = createOkpPublicKeyBytes(2)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
+    const expectedBase64Url = TypedArrayEncoder.toBase64Url(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:peer:123',
@@ -54,14 +54,14 @@ describe('cloudagent did key extraction', () => {
       ],
     }
 
-    expect(findPublicKeyBase64(didDocument)).to.equal(expectedBase64)
+    expect(findPublicKeyBase64Url(didDocument)).to.equal(expectedBase64Url)
   })
 
   it('returns key when keyAgreement references JsonWebKey2020 publicKeyJwk for X25519', () => {
     // DIDDocs can use JWK (eg. OKP/X25519), rather than base58 or multibase
     const x25519PublicKey = createOkpPublicKeyBytes(3)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
-    const jwkX = TypedArrayEncoder.toBase64URL(x25519PublicKey)
+    const expectedBase64Url = TypedArrayEncoder.toBase64Url(x25519PublicKey)
+    const jwkX = TypedArrayEncoder.toBase64Url(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -80,14 +80,14 @@ describe('cloudagent did key extraction', () => {
       keyAgreement: ['did:web:example.com#encryption'],
     }
 
-    expect(findPublicKeyBase64(didDocument)).to.equal(expectedBase64)
+    expect(findPublicKeyBase64Url(didDocument)).to.equal(expectedBase64Url)
   })
 
   it('returns key when keyAgreement uses a fragment-only reference', () => {
     // DIDDoc serializations can use fragment-only references (eg. '#encryption')
     // for keyAgreement entries
     const x25519PublicKey = createOkpPublicKeyBytes(4)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
+    const expectedBase64Url = TypedArrayEncoder.toBase64Url(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -102,7 +102,7 @@ describe('cloudagent did key extraction', () => {
       keyAgreement: ['#encryption'],
     }
 
-    expect(findPublicKeyBase64(didDocument)).to.equal(expectedBase64)
+    expect(findPublicKeyBase64Url(didDocument)).to.equal(expectedBase64Url)
   })
 
   it('returns the first usable X25519 key when multiple keyAgreement entries are present', () => {
@@ -110,7 +110,7 @@ describe('cloudagent did key extraction', () => {
     // We should skip unusable entries and return the first X25519
     const ed25519PublicKey = createOkpPublicKeyBytes(5)
     const x25519PublicKey = createOkpPublicKeyBytes(6)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
+    const expectedBase64Url = TypedArrayEncoder.toBase64Url(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -131,7 +131,7 @@ describe('cloudagent did key extraction', () => {
       keyAgreement: ['did:web:example.com#signing', 'did:web:example.com#encryption'],
     }
 
-    expect(findPublicKeyBase64(didDocument)).to.equal(expectedBase64)
+    expect(findPublicKeyBase64Url(didDocument)).to.equal(expectedBase64Url)
   })
 
   it('returns undefined when keyAgreement is a reference but verificationMethod is missing', () => {
@@ -141,7 +141,7 @@ describe('cloudagent did key extraction', () => {
       keyAgreement: ['did:web:example.com#encryption'],
     }
 
-    expect(findPublicKeyBase64(didDocument)).to.equal(undefined)
+    expect(findPublicKeyBase64Url(didDocument)).to.equal(undefined)
   })
 
   it('ignores non-X25519 verification methods', () => {
@@ -160,13 +160,13 @@ describe('cloudagent did key extraction', () => {
       keyAgreement: ['did:web:example.com#encryption'],
     }
 
-    expect(findPublicKeyBase64(didDocument)).to.equal(undefined)
+    expect(findPublicKeyBase64Url(didDocument)).to.equal(undefined)
   })
 
   it('supports canonical Multikey/publicKeyMultibase for X25519', () => {
     // DIDDocs can represent key material via Multikey + publicKeyMultibase
     const x25519PublicKey = createOkpPublicKeyBytes(7)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
+    const expectedBase64Url = TypedArrayEncoder.toBase64Url(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -181,14 +181,14 @@ describe('cloudagent did key extraction', () => {
       keyAgreement: ['did:web:example.com#encryption'],
     }
 
-    expect(findPublicKeyBase64(didDocument)).to.equal(expectedBase64)
+    expect(findPublicKeyBase64Url(didDocument)).to.equal(expectedBase64Url)
   })
 
   it('supports a mixed DIDDoc with signing and key-agreement Multikey verification methods', () => {
     // DID:web documents typically publish both a signing key (Ed25519) and an agreement key (X25519)
     const ed25519PublicKey = createOkpPublicKeyBytes(8)
     const x25519PublicKey = createOkpPublicKeyBytes(9)
-    const expectedBase64 = TypedArrayEncoder.toBase64(x25519PublicKey)
+    const expectedBase64Url = TypedArrayEncoder.toBase64Url(x25519PublicKey)
 
     const didDocument: DidDocument = {
       id: 'did:web:example.com',
@@ -209,6 +209,6 @@ describe('cloudagent did key extraction', () => {
       keyAgreement: ['did:web:example.com#encryption'],
     }
 
-    expect(findPublicKeyBase64(didDocument)).to.equal(expectedBase64)
+    expect(findPublicKeyBase64Url(didDocument)).to.equal(expectedBase64Url)
   })
 })

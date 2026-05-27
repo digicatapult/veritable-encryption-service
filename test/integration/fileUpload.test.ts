@@ -6,7 +6,7 @@ import * as sinon from 'sinon'
 import request from 'supertest'
 import env from '../../src/env.js'
 import createHttpServer from '../../src/server.js'
-import { findPublicKeyBase64 } from '../../src/services/cloudagent/did.js'
+import { findPublicKeyBase64Url } from '../../src/services/cloudagent/did.js'
 import { DidDocument } from '../../src/services/cloudagent/types.js'
 import { setupTwoPartyContext, testCleanup, TwoPartyContext } from '../helpers/twoPartyContext.js'
 
@@ -23,7 +23,7 @@ describe('File Upload controller tests', function () {
     app = await createHttpServer()
     recipientDid = 'did:web:veritable-cloudagent-alice%3A8443'
     const did = await context.localCloudagent.resolveDid(recipientDid)
-    recipientPublicKey = findPublicKeyBase64(did)!
+    recipientPublicKey = findPublicKeyBase64Url(did)!
   })
 
   afterEach(() => {

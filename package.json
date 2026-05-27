@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -52,8 +52,8 @@
     "@types/sinon": "^21.0.1",
     "@types/supertest": "^7.2.0",
     "@types/swagger-ui-express": "^4.1.8",
-    "@typescript-eslint/eslint-plugin": "^8.59.4",
-    "@typescript-eslint/parser": "^8.59.4",
+    "@typescript-eslint/eslint-plugin": "^8.60.0",
+    "@typescript-eslint/parser": "^8.60.0",
     "chai": "^6.2.2",
     "chai-as-promised": "^8.0.2",
     "concurrently": "^9.2.1",
@@ -73,7 +73,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "@credo-ts/core": "^0.6.3",
+    "@credo-ts/core": "^0.7.0",
     "@openwallet-foundation/askar-nodejs": "^0.6.0",
     "@tsoa/runtime": "^6.6.0",
     "@tweedegolf/sab-adapter-minio": "^3.0.2",
@@ -85,7 +85,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "envalid": "^8.1.1",
-    "expo": "56.0.3",
+    "expo": "56.0.5",
     "express": "^5.2.1",
     "knex": "^3.2.10",
     "multer": "^2.1.1",
@@ -101,6 +101,6 @@
   },
   "overrides": {
     "ref-napi": "npm:@2060.io/ref-napi",
-    "node-addon-api": "8.7.0"
+    "node-addon-api": "8.8.0"
   }
 }
