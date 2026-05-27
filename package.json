@@ -73,7 +73,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "@credo-ts/core": "^0.6.3",
+    "@credo-ts/core": "^0.7.0",
     "@openwallet-foundation/askar-nodejs": "^0.6.0",
     "@tsoa/runtime": "^6.6.0",
     "@tweedegolf/sab-adapter-minio": "^3.0.2",
@@ -101,6 +101,6 @@
   },
   "overrides": {
     "ref-napi": "npm:@2060.io/ref-napi",
-    "node-addon-api": "8.7.0"
+    "node-addon-api": "8.8.0"
   }
 }
