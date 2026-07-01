@@ -43,6 +43,16 @@ export const errorHandler = function errorHandler(
   if (err instanceof multer.MulterError && (err as multer.MulterError).code === 'LIMIT_FILE_SIZE') {
     err = new BadRequest(`File is too large. Must be less than ${env.UPLOAD_LIMIT_MB}MB`)
   }
+
+  if (
+    err instanceof Error &&
+    (err.message.includes('Malformed part header') ||
+      err.message.includes('Unexpected end of form') ||
+      err.message.includes('Unexpected end of multipart data'))
+  ) {
+    err = new BadRequest('Invalid multipart form data')
+  }
+
   if (err instanceof ValidateError) {
     logger.warn(`Handled Validation Error for ${req.path}: %s`, JSON.stringify(err.fields))
 
