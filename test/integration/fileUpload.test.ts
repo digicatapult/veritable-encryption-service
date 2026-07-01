@@ -110,5 +110,23 @@ describe('File Upload controller tests', function () {
         .field('recipientDid', 'notADid')
         .expect(422)
     })
+
+    it('should 400 for malformed multipart payload', async () => {
+      const boundary = 'multipart-test-boundary'
+      const malformedBody = [
+        `--${boundary}`,
+        'Content-Disposition: form-data; name="file"; filename="test-file.txt"',
+        'Malformed part header',
+        '',
+        'test',
+        `--${boundary}--`,
+      ].join('\r\n')
+
+      await request(app)
+        .post('/files')
+        .set('Content-Type', `multipart/form-data; boundary=${boundary}`)
+        .send(malformedBody)
+        .expect(400)
+    })
   })
 })
