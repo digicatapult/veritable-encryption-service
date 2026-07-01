@@ -13,9 +13,14 @@ import swagger from './routes/swagger.json' with { type: 'json' }
 
 export default async (): Promise<Express> => {
   const app: Express = express()
+  app.disable('x-powered-by')
 
   const logger = container.resolve<Logger>(LoggerToken)
   app.use(createRequestLogger(logger))
+  app.use((_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff')
+    next()
+  })
 
   const options: SwaggerUiOptions = {
     swaggerOptions: { url: '/api-docs' },
@@ -23,7 +28,7 @@ export default async (): Promise<Express> => {
 
   app.use(express.urlencoded({ extended: true }))
   app.use(express.json())
-  app.use(cors())
+  app.use(cors({ origin: false }))
 
   app.get('/', (_req: ExRequest, res: ExResponse) => {
     res.redirect('/swagger')
