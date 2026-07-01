@@ -18,6 +18,9 @@ export default async (): Promise<Express> => {
   const logger = container.resolve<Logger>(LoggerToken)
   app.use(createRequestLogger(logger))
   app.use((_req, res, next) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin')
+    res.setHeader('Referrer-Policy', 'no-referrer')
+    res.setHeader('X-Frame-Options', 'DENY')
     res.setHeader('X-Content-Type-Options', 'nosniff')
     next()
   })
@@ -45,6 +48,10 @@ export default async (): Promise<Express> => {
     },
   })
   RegisterRoutes(app, { multer: multerOptions })
+
+  app.use((_req, res) => {
+    res.status(404).json({ message: 'not found' })
+  })
 
   app.use(errorHandler)
 
