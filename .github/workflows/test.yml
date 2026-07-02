@@ -1,7 +1,7 @@
 name: Test (NPM)
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
+  push:
+    branches-ignore: ['main']
 jobs:
   static-checks-npm:
     uses: digicatapult/shared-workflows/.github/workflows/static-checks-npm.yml@main
