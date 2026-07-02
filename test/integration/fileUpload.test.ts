@@ -134,5 +134,6 @@ describe('File Upload controller tests', function () {
           expect(res.headers['content-type']).to.contain('application/json')
           expect(res.body).to.deep.equal({ message: 'Invalid multipart form data' })
         })
+    })
   })
 })
