@@ -130,6 +130,9 @@ describe('File Upload controller tests', function () {
         .set('Content-Type', `multipart/form-data; boundary=${boundary}`)
         .send(malformedBody)
         .expect(400)
-    })
+        .expect((res) => {
+          expect(res.headers['content-type']).to.contain('application/json')
+          expect(res.body).to.deep.equal({ message: 'Invalid multipart form data' })
+        })
   })
 })
