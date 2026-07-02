@@ -278,14 +278,15 @@ export default class Cloudagent {
     }
 
     const detail = await this.readErrorDetail(response)
+    this.logger.warn({ method, path, status: response.status, detail }, 'Upstream cloudagent error response')
 
     if (response.status >= 400 && response.status < 500) {
-      throw new HttpResponse({ code: response.status, message: `Unexpected ${method} ${path}: ${detail}` })
+      throw new HttpResponse({ code: response.status, message: `Unexpected ${method} ${path}` })
     }
 
     throw new HttpResponse({
       code: 502,
-      message: `Upstream cloudagent error calling ${method} ${path}: HTTP ${response.status} ${detail}`,
+      message: `Upstream cloudagent error calling ${method} ${path}`,
     })
   }
 
