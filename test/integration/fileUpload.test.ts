@@ -78,7 +78,7 @@ describe('File Upload controller tests', function () {
         .field('recipientDid', 'someDid')
         .expect(400)
         .expect((res) => {
-          expect(res.body).contain('No valid public key found')
+          expect(res.body).to.deep.equal({ message: 'bad request' })
         })
     })
 
@@ -91,7 +91,7 @@ describe('File Upload controller tests', function () {
         .field('recipientDid', recipientDid)
         .expect(400)
         .expect((res) => {
-          expect(res.body).contain('File is too large')
+          expect(res.body).to.deep.equal({ message: 'bad request' })
         })
     })
 
@@ -101,6 +101,9 @@ describe('File Upload controller tests', function () {
         .attach('file', testFileContent, 'test-file.txt')
         .field('recipientDid', 'did:bla')
         .expect(404)
+        .expect((res) => {
+          expect(res.body).to.deep.equal({ message: 'not found' })
+        })
     })
 
     it('should 422 if recipient DID is unprocessable', async () => {
@@ -109,6 +112,28 @@ describe('File Upload controller tests', function () {
         .attach('file', testFileContent, 'test-file.txt')
         .field('recipientDid', 'notADid')
         .expect(422)
+    })
+
+    it('should 400 for malformed multipart payload', async () => {
+      const boundary = 'multipart-test-boundary'
+      const malformedBody = [
+        `--${boundary}`,
+        'Content-Disposition: form-data; name="file"; filename="test-file.txt"',
+        'Malformed part header',
+        '',
+        'test',
+        `--${boundary}--`,
+      ].join('\r\n')
+
+      await request(app)
+        .post('/files')
+        .set('Content-Type', `multipart/form-data; boundary=${boundary}`)
+        .send(malformedBody)
+        .expect(400)
+        .expect((res) => {
+          expect(res.headers['content-type']).to.contain('application/json')
+          expect(res.body).to.deep.equal({ message: 'bad request' })
+        })
     })
   })
 })

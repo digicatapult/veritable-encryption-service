@@ -1,10 +1,9 @@
-import { ValidateError } from '@tsoa/runtime'
 import type { Logger } from 'pino'
 import { inject, injectable, singleton } from 'tsyringe'
 import { z } from 'zod'
 
 import { type Env, EnvToken } from '../../env.js'
-import { BadRequest, InternalError, NotFoundError } from '../../error.js'
+import { BadRequest, HttpResponse, InternalError, NotFoundError } from '../../error.js'
 import { LoggerToken } from '../../logger.js'
 import { DID, SchemaId, UUID, Version } from '../../models/stringTypes.js'
 import { ALG, ENC } from '../encryption/ecdh.js'
@@ -198,17 +197,7 @@ export default class Cloudagent {
     })
 
     if (!response.ok) {
-      if (response.status === 400) {
-        throw new BadRequest(`${method} ${path}`)
-      }
-      if (response.status === 404) {
-        throw new NotFoundError(`${method} ${path}`)
-      }
-      if (response.status === 422) {
-        const error = await response.json()
-        throw new ValidateError(error.details || {}, error.message || 'Validation failed')
-      }
-      throw new InternalError(`Unexpected error calling ${method} ${path}: ${response.statusText}`)
+      await this.mapErrorResponseToException(method, path, response)
     }
     try {
       return await parse(response)
@@ -241,17 +230,7 @@ export default class Cloudagent {
     })
 
     if (!response.ok) {
-      if (response.status === 400) {
-        throw new BadRequest(`${method} ${path}`)
-      }
-      if (response.status === 404) {
-        throw new NotFoundError(`${method} ${path}`)
-      }
-      if (response.status === 422) {
-        const error = await response.json()
-        throw new ValidateError(error.details || {}, error.message || 'Validation failed')
-      }
-      throw new InternalError(`Unexpected error calling ${method} ${path}: ${await response.text()}`)
+      await this.mapErrorResponseToException(method, path, response)
     }
 
     try {
@@ -270,4 +249,26 @@ export default class Cloudagent {
       const asJson = await response.json()
       return parser.parse(asJson)
     }
+
+  private async mapErrorResponseToException(method: string, path: string, response: Response): Promise<never> {
+    if (response.status === 400) {
+      throw new BadRequest()
+    }
+
+    if (response.status === 404) {
+      throw new NotFoundError()
+    }
+
+    if (response.status === 422) {
+      throw new HttpResponse({ code: 422, message: 'validation failed' })
+    }
+
+    this.logger.warn({ method, path, status: response.status }, 'Upstream cloudagent error response')
+
+    if (response.status >= 400 && response.status < 500) {
+      throw new BadRequest()
+    }
+
+    throw new InternalError()
+  }
 }

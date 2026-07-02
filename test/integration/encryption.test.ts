@@ -72,7 +72,7 @@ describe('encryption', async () => {
 
     await expect(context.localCloudagent.walletDecrypt(encryptedCek, wrongPublicKey)).to.be.rejectedWith(
       InternalError,
-      /AEAD decryption error|not found in backend/
+      'internal error'
     )
   })
 
