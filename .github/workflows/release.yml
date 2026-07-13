@@ -59,8 +59,17 @@ jobs:
       target: "http://localhost:3000/api-docs"
       target_wait_timeout: 120
 
+  migration-checks:
+    uses: digicatapult/shared-workflows/.github/workflows/migration-checks-npm.yml@main
+    permissions:
+      contents: read
+    with:
+      migrations_dir: src/lib/db/migrations
+      postgres_image: postgres:18.4-alpine
+      db_name: veritable-encryption-service
+
   build-docker:
-    needs: [tests, static-checks-npm, scan-zap]
+    needs: [tests, static-checks-npm, scan-zap, migration-checks]
     uses: digicatapult/shared-workflows/.github/workflows/build-docker.yml@main
     permissions:
       contents: read
