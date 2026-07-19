@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.2.36",
+  "version": "0.2.37",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -41,7 +41,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^10.0.1",
-    "@swc-node/register": "^1.11.1",
+    "@swc-node/register": "^1.12.0",
     "@swc/cli": "^0.8.1",
     "@swc/core": "^1.15.43",
     "@types/chai": "^5.2.3",
@@ -85,7 +85,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "envalid": "^8.2.0",
-    "expo": "57.0.4",
+    "expo": "57.0.6",
     "express": "^5.2.1",
     "knex": "^3.3.0",
     "multer": "^2.2.0",
