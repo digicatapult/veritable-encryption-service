@@ -34,6 +34,7 @@ jobs:
     secrets:
       DTRACK_APIKEY: ${{ secrets.DTRACK_APIKEY }}
       DTRACK_HOSTNAME: ${{ secrets.DTRACK_HOSTNAME }}
+      DTRACK_PARENT_GUID: ${{ secrets.DTRACK_PARENT_GUID }}
   scan-zap:
     uses: digicatapult/shared-workflows/.github/workflows/scan-zap.yml@main
     permissions:
