@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1.26
 FROM node:24-bookworm AS builder
 
+RUN npm install -g npm@12.0.1
+
 WORKDIR /veritable-encryption-service
 
 COPY package*.json ./
