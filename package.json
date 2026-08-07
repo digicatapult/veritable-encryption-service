@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "check": "npm run tsoa:build && tsc --noEmit",
+    "check": "npm run tsoa:build && node_modules/tsc-native/bin/tsc --noEmit",
     "depcheck": "depcheck",
     "clean": "rimraf -rf ./build",
     "build": "npm run clean && npm run tsoa:build && swc ./src -d ./build --strip-leading-paths --copy-files",
@@ -70,7 +70,8 @@
     "sinon": "^22.1.0",
     "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
-    "typescript": "^7.0.2"
+    "tsc-native": "npm:typescript@^7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "dependencies": {
     "@credo-ts/core": "^0.7.0",
