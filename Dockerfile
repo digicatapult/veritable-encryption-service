@@ -3,6 +3,8 @@ FROM node:24-bookworm AS builder
 
 WORKDIR /veritable-encryption-service
 
+RUN npm install -g npm@12.0.1
+
 COPY package*.json ./
 COPY tsconfig.json ./
 
@@ -14,6 +16,8 @@ FROM node:24-bookworm AS modules
 
 WORKDIR /veritable-encryption-service
 
+RUN npm install -g npm@12.0.1
+
 COPY package*.json ./
 
 RUN npm ci --production
@@ -23,6 +27,8 @@ FROM node:24-bookworm-slim AS service
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 WORKDIR /veritable-encryption-service
+
+RUN npm install -g npm@12.0.1
 
 RUN apt-get update && apt-get install -y curl
 

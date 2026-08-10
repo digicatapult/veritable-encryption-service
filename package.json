@@ -27,7 +27,13 @@
   },
   "engines": {
     "node": "24.x",
-    "npm": "11.x"
+    "npm": "12.x"
+  },
+  "allowScripts": {
+    "@openwallet-foundation/askar-nodejs@0.6.0": true,
+    "@swc/core@1.15.47": true,
+    "cbor-extract@2.2.2": true,
+    "koffi@2.16.3": true
   },
   "keywords": [
     "OpenAPI"
