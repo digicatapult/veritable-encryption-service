@@ -5,6 +5,8 @@ RUN npm install -g npm@12.0.1
 
 WORKDIR /veritable-encryption-service
 
+RUN npm install -g npm@12.0.1
+
 COPY package*.json ./
 COPY tsconfig.json ./
 
@@ -18,6 +20,8 @@ RUN npm install -g npm@12.0.1
 
 WORKDIR /veritable-encryption-service
 
+RUN npm install -g npm@12.0.1
+
 COPY package*.json ./
 
 RUN npm ci --production
@@ -29,6 +33,8 @@ RUN npm install -g npm@12.0.1
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 WORKDIR /veritable-encryption-service
+
+RUN npm install -g npm@12.0.1
 
 RUN apt-get update && apt-get install -y curl
 
