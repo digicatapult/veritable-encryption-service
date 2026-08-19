@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1.26
 FROM node:24-bookworm AS builder
 
+RUN npm install -g npm@12.0.1
+
 WORKDIR /veritable-encryption-service
 
 RUN npm install -g npm@12.0.1
@@ -14,6 +16,8 @@ RUN npm run build
 
 FROM node:24-bookworm AS modules
 
+RUN npm install -g npm@12.0.1
+
 WORKDIR /veritable-encryption-service
 
 RUN npm install -g npm@12.0.1
@@ -23,6 +27,8 @@ COPY package*.json ./
 RUN npm ci --production
 
 FROM node:24-bookworm-slim AS service
+
+RUN npm install -g npm@12.0.1
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}

@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "check": "npm run tsoa:build && tsc --noEmit",
+    "check": "npm run tsoa:build && node_modules/@typescript/native/bin/tsc --noEmit",
     "depcheck": "depcheck",
     "clean": "rimraf -rf ./build",
     "build": "npm run clean && npm run tsoa:build && swc ./src -d ./build --strip-leading-paths --copy-files",
@@ -28,12 +28,6 @@
   "engines": {
     "node": "24.x",
     "npm": "12.x"
-  },
-  "allowScripts": {
-    "@openwallet-foundation/askar-nodejs@0.6.0": true,
-    "@swc/core@1.15.47": true,
-    "cbor-extract@2.2.2": true,
-    "koffi@2.16.3": true
   },
   "keywords": [
     "OpenAPI"
@@ -76,7 +70,8 @@
     "sinon": "^22.1.0",
     "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "dependencies": {
     "@credo-ts/core": "^0.7.0",
@@ -108,5 +103,13 @@
   "overrides": {
     "ref-napi": "npm:@2060.io/ref-napi",
     "node-addon-api": "8.9.2"
+  },
+  "allowScripts": {
+    "@openwallet-foundation/askar-nodejs@0.6.0": true,
+    "@scarf/scarf@1.4.0": true,
+    "@swc/core@1.15.46": true,
+    "cbor-extract@2.2.2": true,
+    "fsevents@2.3.3": true,
+    "koffi@2.16.3": true
   }
 }
