@@ -30,7 +30,7 @@ jobs:
         mkcert veritable-cloudagent-alice localhost &&
         mkcert veritable-cloudagent-bob localhost &&
         echo "NODE_EXTRA_CA_CERTS=$(mkcert -CAROOT)/rootCA.pem" >> $GITHUB_ENV
-      pre_test_command: 'docker compose -f docker-compose.yml up -d --quiet-pull && npm run tsoa:build && npm run db:migrate'
+      pre_test_command: 'npm run tsoa:build && npm run db:migrate'
       tests: '["test:integration", "test:unit"]'
       coverage: false
   scan-zap:
