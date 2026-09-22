@@ -1,7 +1,7 @@
 import { Provider, Storage, StorageAdapterConfig } from '@tweedegolf/storage-abstraction'
 import { type Logger } from 'pino'
 import { inject, injectable } from 'tsyringe'
-import { AzureEnv, EnvToken, MinioEnv, S3Env, type Env } from '../env.js'
+import { AzureEnv, EnvToken, S3Env, type Env } from '../env.js'
 import { LoggerToken } from '../logger.js'
 
 export const StorageToken = Symbol('StorageToken')
@@ -9,13 +9,13 @@ export const StorageToken = Symbol('StorageToken')
 @injectable()
 export default class StorageClass {
   private storage: Storage
-  private config: StorageAdapterConfig | undefined
+  private config!: StorageAdapterConfig
 
   constructor(
-    @inject(EnvToken) private env: S3Env | AzureEnv | MinioEnv,
+    @inject(EnvToken) private env: S3Env | AzureEnv,
     @inject(LoggerToken) private logger: Logger
   ) {
-    if (!isS3Env(env) && !isAzureEnv(env) && !isMinioEnv(env)) {
+    if (!isS3Env(env) && !isAzureEnv(env)) {
       throw new Error('Invalid storage mode')
     }
     if (isS3Env(env)) {
@@ -32,16 +32,6 @@ export default class StorageClass {
       this.config = {
         provider: Provider.AZURE, // azure config
         connectionString: `DefaultEndpointsProtocol=${env.STORAGE_BACKEND_PROTOCOL};AccountName=${env.STORAGE_BACKEND_ACCOUNT_NAME};AccountKey=${env.STORAGE_BACKEND_ACCOUNT_SECRET};BlobEndpoint=${env.STORAGE_BACKEND_PROTOCOL}://${env.STORAGE_BACKEND_HOST}:${env.STORAGE_BACKEND_PORT}/${env.STORAGE_BACKEND_ACCOUNT_NAME}`,
-      }
-    } else {
-      this.config = {
-        provider: Provider.MINIO, // minio config
-        accessKey: env.STORAGE_BACKEND_ACCESS_KEY_ID,
-        secretKey: env.STORAGE_BACKEND_SECRET_ACCESS_KEY,
-        endPoint: env.STORAGE_BACKEND_HOST,
-        port: env.STORAGE_BACKEND_PORT,
-        bucketName: env.STORAGE_BACKEND_BUCKET_NAME.toString(),
-        useSSL: env.STORAGE_BACKEND_PROTOCOL === 'https',
       }
     }
 
@@ -63,7 +53,7 @@ export default class StorageClass {
       return
     }
 
-    const createdBucket = await this.storage.createBucket(bucketName, { public: true })
+    const createdBucket = await this.storage.createBucket(bucketName)
     if (createdBucket.error !== null) {
       throw new Error('Failed to create bucket')
     }
@@ -107,8 +97,4 @@ function isS3Env(env: Env): env is S3Env {
 
 function isAzureEnv(env: Env): env is AzureEnv {
   return env.STORAGE_BACKEND_MODE === 'AZURE'
-}
-
-function isMinioEnv(env: Env): env is MinioEnv {
-  return env.STORAGE_BACKEND_MODE === 'MINIO'
 }

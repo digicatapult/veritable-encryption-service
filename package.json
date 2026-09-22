@@ -74,10 +74,9 @@
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "dependencies": {
-    "@credo-ts/core": "^0.7.0",
+    "@credo-ts/core": "^0.7.1",
     "@openwallet-foundation/askar-nodejs": "^0.6.0",
     "@tsoa/runtime": "^6.6.0",
-    "@tweedegolf/sab-adapter-minio": "^3.0.2",
     "@tweedegolf/sab-adapter-s3": "^3.0.4",
     "@tweedegolf/sab-adapter-azure-blob": "^3.0.2",
     "@tweedegolf/storage-abstraction": "^3.0.4",
