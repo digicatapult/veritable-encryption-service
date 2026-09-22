@@ -34,7 +34,7 @@ export class FilesController extends Controller {
    * @description Uploads a file to the configured storage backend (S3/Azure).
    * File is encrypted using AES-256-GCM with a randomly generated Content Encryption Key (CEK).
    * CEK is ECDH-ES encrypted using with the first X25519 public key found in recipient DID `keyAgreement`.
-   * Encrypted file is stored with anonymous read access.
+   * Encrypted file is stored privately and returned through a signed access URL.
    * Encrypted CEK is returned for transmission to the recipient via DIDComm.
    * @param file The file to encrypt and upload
    * @param recipientDid The DID of the recipient who will decrypt the file
