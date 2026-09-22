@@ -32,6 +32,7 @@ jobs:
         echo "NODE_EXTRA_CA_CERTS=$(mkcert -CAROOT)/rootCA.pem" >> $GITHUB_ENV
       pre_test_command: 'docker compose -f docker-compose.yml up -d --quiet-pull && npm run tsoa:build && npm run db:migrate'
       tests: '["test:integration", "test:unit"]'
+      coverage: false
   scan-zap:
     uses: digicatapult/shared-workflows/.github/workflows/scan-zap.yml@main
     permissions:

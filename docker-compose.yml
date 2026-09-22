@@ -179,10 +179,7 @@ services:
     image: chrislusf/seaweedfs:latest
     restart: on-failure
     ports:
-      - "9333:9333"
-      - "18081:8080"
-      - "8333:8333"
-      - "18080:18080"
+      - "127.0.0.1:8333:8333"
     command: server -s3 -s3.config=/etc/seaweedfs/s3.json -dir=/data -volume.max=100
     volumes:
       - seaweedfs-data:/data

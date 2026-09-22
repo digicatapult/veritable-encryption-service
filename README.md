@@ -19,7 +19,7 @@ Use a `.env` at root of the repository to set values for the environment variabl
 | DB_PASSWORD                       |    N     |                                         `postgres`                                         | Database password                                                                    |
 | DB_PORT                           |    N     |                                           `5432`                                           | Database port                                                                        |
 | UPLOAD_LIMIT_MB                   |    n     |                                           `100`                                            | Upload limit for files in MB                                                         |
-| STORAGE_BACKEND_MODE              |    N     |                                            `S3`                                            | Storage backend type. Valid values are [`S3`, `AZURE`]. MinIO is unsupported.       |
+| STORAGE_BACKEND_MODE              |    N     |                                            `S3`                                            | Storage backend type. Valid values are [`S3`, `AZURE`].                             |
 | STORAGE_BACKEND_HOST              |    N     |                                        `localhost`                                         | Storage backend host                                                                 |
 | STORAGE_BACKEND_PORT              |    N     |                            `8333` (SeaweedFS/S3) or `10000` (Azure)                       | Storage backend port                                                                 |
 | STORAGE_BACKEND_PROTOCOL          |    N     |                                           `http`                                           | Storage backend protocol (`http` or `https`)                                         |
@@ -100,7 +100,7 @@ npm run test:integration
 
 ## Full demo
 
-This [E2E success test](test/integration/fileUpload.test.ts) shows how to upload a file to be encrypted for a recipient DID and stored in minio. The recipient downloads and decrypts the file.
+This [E2E success test](test/integration/fileUpload.test.ts) shows how to upload a file to be encrypted for a recipient DID and stored through the S3-compatible object-storage API provided by the SeaweedFS gateway. The recipient downloads and decrypts the file.
 
 ## Encryption
 
