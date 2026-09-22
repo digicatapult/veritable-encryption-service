@@ -2,7 +2,7 @@
 
 ## Description
 
-An API facilitating encryption and storage for Digital Catapult's [Veritable](https://github.com/digicatapult/veritable-documentation) SSI solution. This service acts as an encryption layer for file storage, uploading encrypted files to Minio and providing direct access URLs for anonymous downloads.
+An API facilitating encryption and storage for Digital Catapult's [Veritable](https://github.com/digicatapult/veritable-documentation) SSI solution. This service acts as an encryption layer for file storage, uploading encrypted files to S3-compatible storage and providing signed access URLs for downloads. Local development uses SeaweedFS behind its S3 gateway.
 
 ## Configuration
 
@@ -19,13 +19,13 @@ Use a `.env` at root of the repository to set values for the environment variabl
 | DB_PASSWORD                       |    N     |                                         `postgres`                                         | Database password                                                                    |
 | DB_PORT                           |    N     |                                           `5432`                                           | Database port                                                                        |
 | UPLOAD_LIMIT_MB                   |    n     |                                           `100`                                            | Upload limit for files in MB                                                         |
-| STORAGE_BACKEND_MODE              |    N     |                                          `MINIO`                                           | Storage backend type. Valid values are [`S3`, `AZURE`, `MINIO`]                      |
+| STORAGE_BACKEND_MODE              |    N     |                                            `S3`                                            | Storage backend type. Valid values are [`S3`, `AZURE`]. MinIO is unsupported.       |
 | STORAGE_BACKEND_HOST              |    N     |                                        `localhost`                                         | Storage backend host                                                                 |
-| STORAGE_BACKEND_PORT              |    N     |                            `9000` (Minio/S3) or `10000` (Azure)                            | Storage backend port                                                                 |
+| STORAGE_BACKEND_PORT              |    N     |                            `8333` (SeaweedFS/S3) or `10000` (Azure)                       | Storage backend port                                                                 |
 | STORAGE_BACKEND_PROTOCOL          |    N     |                                           `http`                                           | Storage backend protocol (`http` or `https`)                                         |
 | STORAGE_BACKEND_BUCKET_NAME       |    N     |                                           `test`                                           | Storage bucket/container name                                                        |
-| STORAGE_BACKEND_ACCESS_KEY_ID     |    N     |                                          `minio`                                           | S3/Minio access key ID (required for S3/MINIO modes)                                 |
-| STORAGE_BACKEND_SECRET_ACCESS_KEY |    N     |                                         `password`                                         | S3/Minio secret access key (required for S3/MINIO modes)                             |
+| STORAGE_BACKEND_ACCESS_KEY_ID     |    N     |                                         `ignored`                                          | S3 access key ID (required for S3 mode)                                              |
+| STORAGE_BACKEND_SECRET_ACCESS_KEY |    N     |                                         `ignored`                                          | S3 secret access key (required for S3 mode)                                          |
 | STORAGE_BACKEND_S3_REGION         |    N     |                                        `eu-west-2`                                         | S3 region (required for S3 mode)                                                     |
 | STORAGE_BACKEND_ACCOUNT_NAME      |    N     |                                     `devstoreaccount1`                                     | Azure storage account name (required for AZURE mode)                                 |
 | STORAGE_BACKEND_ACCOUNT_SECRET    |    N     | `Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==` | Azure storage account key (required for AZURE mode)                                  |
@@ -149,7 +149,7 @@ const encryptedCek = encryptEcdh(cek, 'base64-x25519-public-key')
 encryption.destroyCek(cek)
 ```
 
-`envelopedCiphertext` and `encryptedCek` are sent separately. For example, `envelopedCiphertext` goes to external storage (e.g Minio/S3) and `encryptedCek` is sent to recipient via secure channel (DIDComm)
+`envelopedCiphertext` and `encryptedCek` are sent separately. For example, `envelopedCiphertext` goes to external storage (e.g. SeaweedFS/S3) and `encryptedCek` is sent to recipient via secure channel (DIDComm)
 
 **Decryption**:
 

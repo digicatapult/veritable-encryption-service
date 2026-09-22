@@ -31,7 +31,7 @@ export class FilesController extends Controller {
 
   /**
    * @summary Upload and encrypt a file to storage
-   * @description Uploads a file to configured storage backend (Minio/S3/Azure).
+   * @description Uploads a file to the configured storage backend (S3/Azure).
    * File is encrypted using AES-256-GCM with a randomly generated Content Encryption Key (CEK).
    * CEK is ECDH-ES encrypted using with the first X25519 public key found in recipient DID `keyAgreement`.
    * Encrypted file is stored with anonymous read access.

@@ -30,7 +30,7 @@ jobs:
         mkcert veritable-cloudagent-alice localhost &&
         mkcert veritable-cloudagent-bob localhost &&
         echo "NODE_EXTRA_CA_CERTS=$(mkcert -CAROOT)/rootCA.pem" >> $GITHUB_ENV
-      pre_test_command: 'npm run tsoa:build && npm run db:migrate'
+      pre_test_command: 'docker compose -f docker-compose.yml up -d --quiet-pull && npm run tsoa:build && npm run db:migrate'
       tests: '["test:integration", "test:unit"]'
   scan-zap:
     uses: digicatapult/shared-workflows/.github/workflows/scan-zap.yml@main
@@ -40,7 +40,7 @@ jobs:
       docker_name: "ghcr.io/zaproxy/zaproxy:2.17.0"
       matrix_scans: '["api"]'
       api_scan_format: "openapi"
-      env_vars: '{"CLOUDAGENT_ADMIN_ORIGIN": "http://localhost:3100", "DB_HOST": "localhost", "DB_USERNAME": "postgres", "DB_PASSWORD": "postgres", "STORAGE_BACKEND_MODE": "MINIO", "STORAGE_BACKEND_HOST": "localhost", "STORAGE_BACKEND_BUCKET_NAME": "test", "STORAGE_BACKEND_ACCESS_KEY_ID": "minio", "STORAGE_BACKEND_SECRET_ACCESS_KEY": "password"}'
+      env_vars: '{"CLOUDAGENT_ADMIN_ORIGIN": "http://localhost:3100", "DB_HOST": "localhost", "DB_USERNAME": "postgres", "DB_PASSWORD": "postgres", "STORAGE_BACKEND_MODE": "S3", "STORAGE_BACKEND_HOST": "localhost", "STORAGE_BACKEND_PORT": "8333", "STORAGE_BACKEND_S3_REGION": "eu-west-2", "STORAGE_BACKEND_BUCKET_NAME": "test", "STORAGE_BACKEND_ACCESS_KEY_ID": "ignored", "STORAGE_BACKEND_SECRET_ACCESS_KEY": "ignored"}'
       pre_scan_command: >
         sudo apt-get update &&
         sudo apt-get install -y libnss3-tools mkcert &&
