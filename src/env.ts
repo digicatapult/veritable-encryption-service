@@ -47,7 +47,7 @@ type Env = S3Env | AzureEnv
 export const baseSchema = {
   PORT: envalid.port({ default: 3000 }),
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
-  STORAGE_BACKEND_MODE: envalid.str({ devDefault: 'S3', choices: ['S3', 'AZURE'] }),
+  STORAGE_BACKEND_MODE: envalid.str({ default: 'S3', devDefault: 'S3', choices: ['S3', 'AZURE'] }),
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
   DB_HOST: envalid.host({ devDefault: 'localhost' }),
   DB_NAME: envalid.str({ default: 'veritable-encryption-service' }),
@@ -59,7 +59,7 @@ export const baseSchema = {
 
 export const s3Schema = {
   STORAGE_BACKEND_HOST: envalid.host({ devDefault: 'localhost' }),
-  STORAGE_BACKEND_PORT: envalid.port({ default: 8333 }),
+  STORAGE_BACKEND_PORT: envalid.port({ default: 8333, devDefault: 8333 }),
   STORAGE_BACKEND_S3_REGION: envalid.str({ devDefault: 'eu-west-2' }),
   STORAGE_BACKEND_ACCESS_KEY_ID: envalid.str({ devDefault: 'ignored' }),
   STORAGE_BACKEND_SECRET_ACCESS_KEY: envalid.str({ devDefault: 'ignored' }),
@@ -69,7 +69,7 @@ export const s3Schema = {
 
 export const azureSchema = {
   STORAGE_BACKEND_HOST: envalid.host({ devDefault: 'localhost' }),
-  STORAGE_BACKEND_PORT: envalid.port({ default: 10000 }),
+  STORAGE_BACKEND_PORT: envalid.port({ default: 10000, devDefault: 10000 }),
   STORAGE_BACKEND_ACCOUNT_NAME: envalid.str({ devDefault: 'devstoreaccount1' }),
   STORAGE_BACKEND_ACCOUNT_SECRET: envalid.str({
     devDefault: 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==',
