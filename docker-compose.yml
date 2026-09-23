@@ -115,7 +115,7 @@ services:
 
   ipfs:
     container_name: ipfs
-    image: ipfs/kubo:release
+    image: ipfs/kubo:v0.43.1
     ports:
       - "8080:8080" # ipfs HTTP gateway
     volumes:
