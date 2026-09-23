@@ -33,5 +33,8 @@ describe('SeaweedFS S3 Encryption Service Integration', function () {
 
     expect(response.status).to.equal(200)
     expect(downloadedContent).to.equal(testContent)
+
+    const unsignedResponse = await fetch(`${urlParts.origin}${urlParts.pathname}`)
+    expect(unsignedResponse.status).to.equal(403)
   })
 })
