@@ -18,7 +18,7 @@ services:
   ##################################################################################
 
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.20.49
+    image: digicatapult/veritable-cloudagent:v0.20.50
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -67,7 +67,7 @@ services:
 
   veritable-cloudagent-bob:
     container_name: veritable-cloudagent-bob
-    image: digicatapult/veritable-cloudagent:v0.20.49
+    image: digicatapult/veritable-cloudagent:v0.20.50
     restart: always
     depends_on:
       ipfs:
@@ -176,7 +176,7 @@ services:
   ##################################################################################
   seaweedfs:
     container_name: seaweedfs
-    image: chrislusf/seaweedfs:3.90
+    image: chrislusf/seaweedfs:3.99
     restart: on-failure
     ports:
       - "127.0.0.1:8333:8333"
