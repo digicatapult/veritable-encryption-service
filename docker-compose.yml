@@ -18,7 +18,7 @@ services:
   ##################################################################################
 
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.20.40
+    image: digicatapult/veritable-cloudagent:v0.20.49
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -67,7 +67,7 @@ services:
 
   veritable-cloudagent-bob:
     container_name: veritable-cloudagent-bob
-    image: digicatapult/veritable-cloudagent:v0.20.40
+    image: digicatapult/veritable-cloudagent:v0.20.49
     restart: always
     depends_on:
       ipfs:
@@ -115,7 +115,7 @@ services:
 
   ipfs:
     container_name: ipfs
-    image: ipfs/kubo:release
+    image: ipfs/kubo:v0.43.1
     ports:
       - "8080:8080" # ipfs HTTP gateway
     volumes:
@@ -172,25 +172,24 @@ services:
       - testnet
 
   ##################################################################################
-  ## MinIO ##########################################################################
+  ## SeaweedFS ######################################################################
   ##################################################################################
-  minio:
-    container_name: minio
-    image: minio/minio:latest
+  seaweedfs:
+    container_name: seaweedfs
+    image: chrislusf/seaweedfs:3.90
+    restart: on-failure
     ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: password
-    command: server /data --console-address ":9001"
+      - "127.0.0.1:8333:8333"
+    command: server -s3 -s3.config=/etc/seaweedfs/s3.json -dir=/data -volume.max=100
     volumes:
-      - minio-data:/data
+      - seaweedfs-data:/data
+      - ./docker/seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: ["CMD", "wget", "-qO-", "http://seaweedfs:9333/cluster/status"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
+      start_period: 0s
 
   ##################################################################################
   ## PostgreSQL ####################################################################
@@ -213,7 +212,7 @@ volumes:
   alice-veritable-cloudagent-storage:
   bob-veritable-cloudagent-storage:
   encryption-service-storage:
-  minio-data:
+  seaweedfs-data:
     driver: local
     driver_opts:
       type: tmpfs

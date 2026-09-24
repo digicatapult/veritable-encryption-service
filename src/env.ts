@@ -11,7 +11,7 @@ if (process.env.NODE_ENV === 'test') {
 type BaseEnv = {
   PORT: number
   LOG_LEVEL: string
-  STORAGE_BACKEND_MODE: 'S3' | 'AZURE' | 'MINIO'
+  STORAGE_BACKEND_MODE: 'S3' | 'AZURE'
   CLOUDAGENT_ADMIN_ORIGIN: string
   DB_HOST: string
   DB_NAME: string
@@ -42,22 +42,12 @@ type AzureEnv = BaseEnv & {
   STORAGE_BACKEND_BUCKET_NAME: string
 }
 
-type MinioEnv = BaseEnv & {
-  STORAGE_BACKEND_MODE: 'MINIO'
-  STORAGE_BACKEND_HOST: string
-  STORAGE_BACKEND_PORT: number
-  STORAGE_BACKEND_ACCESS_KEY_ID: string
-  STORAGE_BACKEND_SECRET_ACCESS_KEY: string
-  STORAGE_BACKEND_PROTOCOL: string
-  STORAGE_BACKEND_BUCKET_NAME: string
-}
-
-type Env = S3Env | AzureEnv | MinioEnv
+type Env = S3Env | AzureEnv
 
 export const baseSchema = {
   PORT: envalid.port({ default: 3000 }),
   LOG_LEVEL: envalid.str({ default: 'info', devDefault: 'debug' }),
-  STORAGE_BACKEND_MODE: envalid.str({ devDefault: 'MINIO', choices: ['S3', 'AZURE', 'MINIO'] }),
+  STORAGE_BACKEND_MODE: envalid.str({ default: 'S3', devDefault: 'S3', choices: ['S3', 'AZURE'] }),
   CLOUDAGENT_ADMIN_ORIGIN: envalid.url({ devDefault: 'http://localhost:3100' }),
   DB_HOST: envalid.host({ devDefault: 'localhost' }),
   DB_NAME: envalid.str({ default: 'veritable-encryption-service' }),
@@ -69,17 +59,17 @@ export const baseSchema = {
 
 export const s3Schema = {
   STORAGE_BACKEND_HOST: envalid.host({ devDefault: 'localhost' }),
-  STORAGE_BACKEND_PORT: envalid.port({ default: 9000 }),
+  STORAGE_BACKEND_PORT: envalid.port({ default: 8333, devDefault: 8333 }),
   STORAGE_BACKEND_S3_REGION: envalid.str({ devDefault: 'eu-west-2' }),
-  STORAGE_BACKEND_ACCESS_KEY_ID: envalid.str({ devDefault: 'minio' }),
-  STORAGE_BACKEND_SECRET_ACCESS_KEY: envalid.str({ devDefault: 'password' }),
+  STORAGE_BACKEND_ACCESS_KEY_ID: envalid.str({ devDefault: 'ignored' }),
+  STORAGE_BACKEND_SECRET_ACCESS_KEY: envalid.str({ devDefault: 'ignored' }),
   STORAGE_BACKEND_PROTOCOL: envalid.str({ default: 'http', devDefault: 'http' }),
   STORAGE_BACKEND_BUCKET_NAME: envalid.str({ devDefault: 'test' }),
 }
 
 export const azureSchema = {
   STORAGE_BACKEND_HOST: envalid.host({ devDefault: 'localhost' }),
-  STORAGE_BACKEND_PORT: envalid.port({ default: 10000 }),
+  STORAGE_BACKEND_PORT: envalid.port({ default: 10000, devDefault: 10000 }),
   STORAGE_BACKEND_ACCOUNT_NAME: envalid.str({ devDefault: 'devstoreaccount1' }),
   STORAGE_BACKEND_ACCOUNT_SECRET: envalid.str({
     devDefault: 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==',
@@ -88,19 +78,9 @@ export const azureSchema = {
   STORAGE_BACKEND_BUCKET_NAME: envalid.str({ devDefault: 'test' }),
 }
 
-export const minioSchema = {
-  STORAGE_BACKEND_HOST: envalid.host({ devDefault: 'localhost' }),
-  STORAGE_BACKEND_PORT: envalid.port({ default: 9000 }),
-  STORAGE_BACKEND_ACCESS_KEY_ID: envalid.str({ devDefault: 'minio' }),
-  STORAGE_BACKEND_SECRET_ACCESS_KEY: envalid.str({ devDefault: 'password' }),
-  STORAGE_BACKEND_PROTOCOL: envalid.str({ default: 'http', devDefault: 'http' }),
-  STORAGE_BACKEND_BUCKET_NAME: envalid.str({ devDefault: 'test' }),
-}
-
 type SchemaMap = {
   S3: typeof baseSchema & typeof s3Schema
   AZURE: typeof baseSchema & typeof azureSchema
-  MINIO: typeof baseSchema & typeof minioSchema
 }
 
 function getStorageSchema<T extends keyof SchemaMap>(mode: T): SchemaMap[T] {
@@ -110,8 +90,6 @@ function getStorageSchema<T extends keyof SchemaMap>(mode: T): SchemaMap[T] {
       return { ...baseSchema, ...s3Schema } as SchemaMap[T]
     case 'AZURE':
       return { ...baseSchema, ...azureSchema } as SchemaMap[T]
-    case 'MINIO':
-      return { ...baseSchema, ...minioSchema } as SchemaMap[T]
     default:
       throw new Error(`Invalid storage mode: ${mode}`)
   }
@@ -123,10 +101,10 @@ const storageMode = tempEnv.STORAGE_BACKEND_MODE as keyof SchemaMap
 export const envSchema = getStorageSchema(storageMode)
 
 export type ENV_SCHEMA = typeof envSchema
-export type ENV_KEYS = keyof (typeof baseSchema & typeof s3Schema & typeof azureSchema & typeof minioSchema)
+export type ENV_KEYS = keyof (typeof baseSchema & typeof s3Schema & typeof azureSchema)
 
 const env = envalid.cleanEnv(process.env, envSchema) as Env
 export default env
 
 export const EnvToken = Symbol('Env')
-export { AzureEnv, Env, MinioEnv, S3Env }
+export { AzureEnv, Env, S3Env }

@@ -35,7 +35,7 @@ describe('File Upload controller tests', function () {
   })
 
   describe('POST /files', function () {
-    it('should upload encrypted file successfully, file returned from Minio is decrypted correctly', async () => {
+    it('should upload encrypted file successfully and decrypt the file returned from S3', async () => {
       const {
         body: { url, key },
       } = await request(app)
