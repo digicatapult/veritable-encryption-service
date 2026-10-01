@@ -176,7 +176,7 @@ services:
   ##################################################################################
   seaweedfs:
     container_name: seaweedfs
-    image: chrislusf/seaweedfs:4.47
+    image: chrislusf/seaweedfs:4.48
     restart: on-failure
     ports:
       - "127.0.0.1:8333:8333"
