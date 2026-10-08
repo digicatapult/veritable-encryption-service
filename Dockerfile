@@ -36,7 +36,7 @@ WORKDIR /veritable-encryption-service
 
 RUN npm install -g npm@12.0.1
 
-RUN apt-get update && apt-get install -y curl
+RUN apt-get update && apt-get install -y curl && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
 COPY knexfile.js ./
 COPY package*.json ./
