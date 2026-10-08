@@ -101,7 +101,8 @@
   },
   "overrides": {
     "ref-napi": "npm:@2060.io/ref-napi",
-    "node-addon-api": "8.9.2"
+    "node-addon-api": "8.9.2",
+    "shell-quote": "^1.11.0"
   },
   "allowScripts": {
     "@openwallet-foundation/askar-nodejs@0.6.0": true,
