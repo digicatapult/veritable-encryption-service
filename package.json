@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.2.70",
+  "version": "0.2.71",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -77,8 +77,8 @@
     "@credo-ts/core": "^0.7.1",
     "@openwallet-foundation/askar-nodejs": "^0.6.1",
     "@tsoa/runtime": "^6.6.0",
-    "@tweedegolf/sab-adapter-s3": "^3.0.4",
-    "@tweedegolf/sab-adapter-azure-blob": "^3.0.2",
+    "@tweedegolf/sab-adapter-s3": "^3.0.5",
+    "@tweedegolf/sab-adapter-azure-blob": "^3.0.3",
     "@tweedegolf/storage-abstraction": "^3.0.4",
     "@types/multer": "^2.3.0",
     "cbor2": "^2.4.0",
