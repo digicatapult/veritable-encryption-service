@@ -18,7 +18,7 @@ services:
   ##################################################################################
 
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.20.65
+    image: digicatapult/veritable-cloudagent:v0.20.68@sha256:f1ecbba2878974b0fb0038abd622e4d4ddeccf306e162a5161ef80de9a94c9aa
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -67,7 +67,7 @@ services:
 
   veritable-cloudagent-bob:
     container_name: veritable-cloudagent-bob
-    image: digicatapult/veritable-cloudagent:v0.20.65
+    image: digicatapult/veritable-cloudagent:v0.20.68@sha256:f1ecbba2878974b0fb0038abd622e4d4ddeccf306e162a5161ef80de9a94c9aa
     restart: always
     depends_on:
       ipfs:
@@ -115,7 +115,7 @@ services:
 
   ipfs:
     container_name: ipfs
-    image: ipfs/kubo:v0.43.1
+    image: ipfs/kubo:v0.43.1@sha256:b293923d66e490e70ced64df42ea7a6cf7eac2740e3fb29101df18070fa7be48
     ports:
       - "8080:8080" # ipfs HTTP gateway
     volumes:
@@ -128,7 +128,7 @@ services:
   ##################################################################################
   alice-postgres:
     container_name: alice-postgres
-    image: postgres:18.6-alpine
+    image: postgres:18.6-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
     restart: on-failure
     ports:
       - 5433:5432
@@ -152,7 +152,7 @@ services:
   ##################################################################################
   bob-postgres:
     container_name: bob-postgres
-    image: postgres:18.6-alpine
+    image: postgres:18.6-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
     restart: on-failure
     ports:
       - 5434:5432
@@ -176,7 +176,7 @@ services:
   ##################################################################################
   seaweedfs:
     container_name: seaweedfs
-    image: chrislusf/seaweedfs:4.48
+    image: chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
     restart: on-failure
     ports:
       - "127.0.0.1:8333:8333"
@@ -196,7 +196,7 @@ services:
   ##################################################################################
   postgres:
     container_name: encryption-service-postgres
-    image: postgres:18.6-alpine
+    image: postgres:18.6-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
     restart: on-failure
     ports:
       - 5432:5432
