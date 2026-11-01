@@ -18,7 +18,7 @@ services:
   ##################################################################################
 
   veritable-cloudagent-alice:
-    image: digicatapult/veritable-cloudagent:v0.20.68@sha256:f1ecbba2878974b0fb0038abd622e4d4ddeccf306e162a5161ef80de9a94c9aa
+    image: digicatapult/veritable-cloudagent:v0.20.69@sha256:480a4e4d7821d78517578f43fb51e8f60ba31f189d4386806a10e38713598d25
     container_name: veritable-cloudagent-alice
     restart: always
     depends_on:
@@ -67,7 +67,7 @@ services:
 
   veritable-cloudagent-bob:
     container_name: veritable-cloudagent-bob
-    image: digicatapult/veritable-cloudagent:v0.20.68@sha256:f1ecbba2878974b0fb0038abd622e4d4ddeccf306e162a5161ef80de9a94c9aa
+    image: digicatapult/veritable-cloudagent:v0.20.69@sha256:480a4e4d7821d78517578f43fb51e8f60ba31f189d4386806a10e38713598d25
     restart: always
     depends_on:
       ipfs:
