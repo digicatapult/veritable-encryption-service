@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.2.83",
+  "version": "0.2.84",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -26,7 +26,7 @@
     "url": "git+https://github.com/digicatapult/veritable-encryption-service.git"
   },
   "engines": {
-    "node": "24.x",
+    "node": "26.x",
     "npm": "12.x"
   },
   "keywords": [
