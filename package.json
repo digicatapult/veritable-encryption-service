@@ -1,6 +1,6 @@
 {
   "name": "@digicatapult/veritable-encryption-service",
-  "version": "0.2.89",
+  "version": "0.2.90",
   "description": "An OpenAPI service for encryption in Veritable",
   "main": "src/index.ts",
   "type": "module",
@@ -81,7 +81,7 @@
     "@tweedegolf/sab-adapter-azure-blob": "^3.0.3",
     "@tweedegolf/storage-abstraction": "^3.0.4",
     "@types/multer": "^2.3.0",
-    "cbor2": "^2.4.1",
+    "cbor2": "^2.4.2",
     "cors": "^2.8.6",
     "dotenv": "^18.0.10",
     "envalid": "^9.0.0",
